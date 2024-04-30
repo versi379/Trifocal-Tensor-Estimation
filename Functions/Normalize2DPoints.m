@@ -9,7 +9,7 @@
 %  - normMatrix: 3x3 isometric normalization matrix
 %  - normPoints: 3xN matrix of N 2-dimensional points (homogeneous)
 
-function [normPoints, normMatrix] = Normalize2Ddata(points)
+function [normPoints, normMatrix] = Normalize2DPoints(points)
 
     % Number of points is computed as
     % number of columns in either matrix points

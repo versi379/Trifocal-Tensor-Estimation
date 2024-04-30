@@ -24,7 +24,7 @@ function F = linearFM(p1, p2)
 
     % Minimum number of correspondences check
     if N < 8
-        error('At least 8 correspondence points are necessary.')
+        error('At least 8 correspondence points are necessary.');
     end
 
     % Homogeneous to cartesian coordinates
@@ -34,11 +34,13 @@ function F = linearFM(p1, p2)
     end
 
     % Normalize image points
-    [p1,Normal1] = Normalize2Ddata(p1(1:2,:));
-    [p2,Normal2] = Normalize2Ddata(p2(1:2,:));
+    [p1,Normal1] = Normalize2DPoints(p1(1:2,:));
+    [p2,Normal2] = Normalize2DPoints(p2(1:2,:));
+
+    % --- 8 POINT ALGORITHM ---
 
     % Each row of matrix A corresponds to a pair of corresponding points,
-    % each column correspons to one of the coefficients of the FM
+    % each column corresponds to one of the coefficients of the FM
     A = zeros(N,9);
     for i = 1:N
         x1 = p1(1:2,i); x2 = p2(1:2,i);
@@ -47,14 +49,17 @@ function F = linearFM(p1, p2)
     end
     [~,~,V] = svd(A);
 
-    % 
+    % Initial estimate of the FM
     F = reshape(V(:,size(V,2)),3,3);
 
-    % 
+    % Normalization w.r.t. isometric normalization matrices
+    % built for image points in image 1 and image 2
     F = Normal2.'*F*Normal1;
 
-    % 
+    % The smallest singular value in D is set to zero, ensuring that
+    % the rank of the matrix is 2, which is a requirement for a valid FM
     [U,D,V] = svd(F); D(3,3) = 0;
+
     F = U*D*V.';
 
 end
