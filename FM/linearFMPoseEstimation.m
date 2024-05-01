@@ -26,9 +26,9 @@ function [R_t_2, R_t_3, Rec, T, iter] = linearFMPoseEstimation(matchingPoints, c
     K1 = calMatrices(1:3, :); K2 = calMatrices(4:6, :); K3 = calMatrices(7:9, :);
 
     % Normalize image points
-    [x1, Normal1] = Normalize2Ddata(matchingPoints(1:2, :));
-    [x2, Normal2] = Normalize2Ddata(matchingPoints(3:4, :));
-    [x3, Normal3] = Normalize2Ddata(matchingPoints(5:6, :));
+    [x1, Normal1] = Normalize2DPoints(matchingPoints(1:2, :));
+    [x2, Normal2] = Normalize2DPoints(matchingPoints(3:4, :));
+    [x3, Normal3] = Normalize2DPoints(matchingPoints(5:6, :));
 
     % Compute FMs
     F21 = linearFM(x1, x2);

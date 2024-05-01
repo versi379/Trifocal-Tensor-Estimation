@@ -26,12 +26,12 @@ function [normPoints, normMatrix] = Normalize2DPoints(points)
 
     % Scaling component of normalization matrix:
     % first two diagonal elements set to sqrt(2)/norm0 and third element set to 1
-    N_matrix = diag([sqrt(2) / norm0; sqrt(2) / norm0; 1]);
+    normMatrix = diag([sqrt(2) / norm0; sqrt(2) / norm0; 1]);
     % Translation component of normalization matrix:
     % mean point of transformed points becomes origin
-    N_matrix(1:2, 3) = -sqrt(2) * point0 / norm0;
+    normMatrix(1:2, 3) = -sqrt(2) * point0 / norm0;
 
     % Apply transformation on input points
-    new_points = N_matrix(1:2, :) * [points; ones(1, N)];
+    normPoints = normMatrix(1:2, :) * [points; ones(1, N)];
 
 end

@@ -5,7 +5,7 @@ function [R_t, Reconst, iter, repr_err] = BundleAdjustment(CalM, R_t_0, Corresp,
 
     % Normalization of image points
     for j = 1:M
-        [new_Corr, Normal] = Normalize2Ddata(Corresp(2 * j - 1:2 * j, :));
+        [new_Corr, Normal] = Normalize2DPoints(Corresp(2 * j - 1:2 * j, :));
         Corresp(2 * j - 1:2 * j, :) = new_Corr;
         CalM(3 * j - 2:3 * j, :) = Normal * CalM(3 * j - 2:3 * j, :);
     end

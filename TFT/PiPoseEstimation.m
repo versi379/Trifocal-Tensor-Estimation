@@ -4,9 +4,9 @@ function [R_t_2, R_t_3, Reconst, T, iter] = PiPoseEstimation(Corresp, CalM)
     N = size(Corresp, 2);
 
     % Normalization of the data
-    [x1, Normal1] = Normalize2Ddata(Corresp(1:2, :));
-    [x2, Normal2] = Normalize2Ddata(Corresp(3:4, :));
-    [x3, Normal3] = Normalize2Ddata(Corresp(5:6, :));
+    [x1, Normal1] = Normalize2DPoints(Corresp(1:2, :));
+    [x2, Normal2] = Normalize2DPoints(Corresp(3:4, :));
+    [x3, Normal3] = Normalize2DPoints(Corresp(5:6, :));
 
     % First approximation of T: linear equations
     [~, P1, P2, P3] = linearTFT(x1, x2, x3);

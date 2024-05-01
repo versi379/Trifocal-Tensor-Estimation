@@ -1,4 +1,17 @@
-% --- F ---
+% --- DF ---
+
+% This function computes the FM from corresponding points in two images
+% using Gauss-Helmert optimization, initialized by the linear solution.
+%
+% Input:
+% p1: 3xN (homogeneous) or 2xN (cartesian) matrix
+%        of N image points in image 1
+% p2: 3xN (homogeneous) or 2xN (cartesian) matrix
+%        of N image points in image 2
+%
+% Output:
+% F: 3x3 Fundamental Matrix (FM)
+% iter: number of iterations needed in GH algorithm to reach minimum
 
 function [F, iter] = optimalFM(p1, p2)
 
