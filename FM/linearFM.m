@@ -1,14 +1,13 @@
-% --- DF ---
-
+% Description:
 % This function computes the Fundamental Matrix (FM)
 % from corresponding points in two images using
-% linear equations derived from epipolar constraints
+% linear equations derived from epipolar constraints.
 %
 % Input:
 % p1: 3xN (homogeneous) or 2xN (cartesian) matrix
-%        of N image points in image 1
+%     of N image points in image 1
 % p2: 3xN (homogeneous) or 2xN (cartesian) matrix
-%        of N image points in image 2
+%     of N image points in image 2
 %
 % Output:
 % F: 3x3 Fundamental Matrix (FM)
@@ -41,8 +40,8 @@ function F = LinearFM(p1, p2)
 
     % --- NORMALIZED 8 POINT ALGORITHM ---
 
-    % Each row of matrix A corresponds to a pair of corresponding points,
-    % each column corresponds to one of the coefficients of the FM
+    % Linear solution: build matrix A as stated
+    % by Equation 2.3 (Report)
     A = zeros(N, 9);
 
     for i = 1:N
@@ -53,13 +52,14 @@ function F = LinearFM(p1, p2)
 
     [~, ~, V] = svd(A);
 
-    % Initial estimate of the FM
+    % Initial FM estimate
     F = reshape(V(:, size(V, 2)), 3, 3);
 
-    % Undo normalization
+    % Denormalization: transform FM back to
+    % original space
     F = Normal2.' * F * Normal1;
 
-    % Singularity constraint
+    % Constraint enforcement: singularity constraint
     [U, D, V] = svd(F); D(3, 3) = 0;
     F = U * D * V.';
 
