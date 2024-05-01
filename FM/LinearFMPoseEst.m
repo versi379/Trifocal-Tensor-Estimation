@@ -20,7 +20,7 @@
 % Rec: 3xN matrix containing the 3D reconstruction of the
 %      correspondences
 
-function [R_t_2, R_t_3, Rec, T, iter] = linearFMPoseEstimation(matchingPoints, calMatrices)
+function [R_t_2, R_t_3, Rec, T, iter] = LinearFMMPoseEst(matchingPoints, calMatrices)
 
     N = size(matchingPoints, 2);
     K1 = calMatrices(1:3, :); K2 = calMatrices(4:6, :); K3 = calMatrices(7:9, :);
@@ -31,8 +31,8 @@ function [R_t_2, R_t_3, Rec, T, iter] = linearFMPoseEstimation(matchingPoints, c
     [x3, Normal3] = Normalize2DPoints(matchingPoints(5:6, :));
 
     % Compute FMs
-    F21 = linearFM(x1, x2);
-    F31 = linearFM(x1, x3);
+    F21 = LinearFMM(x1, x2);
+    F31 = LinearFMM(x1, x3);
 
     % Undo normalization
     F21 = Normal2.' * F21 * Normal1;

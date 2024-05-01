@@ -40,8 +40,8 @@ method={...
     @FaugPapaTFTPoseEstimation,...  % 4 - TFT - Faugeras&Papadopoulo 
     @PiPoseEstimation,...           % 5 - Pi matrices - Ponce&Hebert
     @PiColPoseEstimation,...        % 6 - Pi matrices - Ponce&Hebert for collinear cameras
-    @LinearFPoseEstimation,...      % 7 - Fundamental matrices - Linear estimation
-    @OptimFPoseEstimation};         % 8 - Fundamental matrices - Optimized
+    @LinearFMPoseEstimation,...      % 7 - Fundamental matrices - Linear estimation
+    @OptimalFMPoseEst};         % 8 - Fundamental matrices - Optimized
 
 [R_t_2,R_t_3,Reconst]=method{3}(Corresp,CalM);
 

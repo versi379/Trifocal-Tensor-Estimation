@@ -1,11 +1,11 @@
-function [R_t_2, R_t_3, Reconst, T, iter] = OptimFPoseEstimation(Corresp, CalM)
+function [R_t_2, R_t_3, Reconst, T, iter] = OptimalFMPoseEst(Corresp, CalM)
 
     N = size(Corresp, 2);
     K1 = CalM(1:3, :); K2 = CalM(4:6, :); K3 = CalM(7:9, :);
 
     % the 2 fundamental matrices
-    [F21, it1] = optimF(Corresp(1:2, :), Corresp(3:4, :));
-    [F31, it2] = optimF(Corresp(1:2, :), Corresp(5:6, :));
+    [F21, it1] = OptimalFM(Corresp(1:2, :), Corresp(3:4, :));
+    [F31, it2] = OptimalFM(Corresp(1:2, :), Corresp(5:6, :));
     iter = it1 + it2;
 
     % Find orientation using calibration and F matrices

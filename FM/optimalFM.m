@@ -13,7 +13,7 @@
 % F: 3x3 Fundamental Matrix (FM)
 % iter: number of iterations needed in GH algorithm to reach minimum
 
-function [F, iter] = optimalFM(p1, p2)
+function [F, iter] = OptimalFM(p1, p2)
 
     % Number of correspondence points is computed as
     % number of columns in either matrix p1 or p2
@@ -42,7 +42,7 @@ function [F, iter] = optimalFM(p1, p2)
     % --- OPTIMIZED GAUSS-HELMERT ALGORITHM ---
 
     % Initial estimate of F
-    F = linearFM(x1, x2); F = F / sqrt(sum(F(1:9) .^ 2));
+    F = LinearFMM(x1, x2); F = F / sqrt(sum(F(1:9) .^ 2));
 
     % Projection matrices from F and 3D points
     [U, ~, ~] = svd(F); epi21 = U(:, 3);

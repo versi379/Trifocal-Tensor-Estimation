@@ -13,7 +13,7 @@
 % Output:
 % F: 3x3 Fundamental Matrix (FM)
 
-function F = linearFM(p1, p2)
+function F = LinearFMM(p1, p2)
 
     % Number of correspondence points is computed as
     % number of columns in either matrix p1 or p2
