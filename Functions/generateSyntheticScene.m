@@ -1,4 +1,4 @@
-function [CalM, R_t, Corresp, points3D] = generateSyntheticScene(N, noise, seed, focalL, angle)
+function [CalM, R_t, Corresp, points3D] = GenerateSyntheticScene(N, noise, seed, focalL, angle)
 
     if isempty(angle) || angle < 70 || angle > 180
         p_coll = 0; % default setting
@@ -92,6 +92,6 @@ function R = rotation(u, v)
     %C=[0 -w(3) w(2); w(3) 0 -w(1); -w(2) w(1) 0];
     %R=eye(3)+C+((1-c)/(s^2))*C^2;
     w = w / s;
-    R = c * eye(3) + s * crossM(w) + (1 - c) * (w * w.');
+    R = c * eye(3) + s * CrossProdMatrix(w) + (1 - c) * (w * w.');
 
 end

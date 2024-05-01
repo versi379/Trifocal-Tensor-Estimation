@@ -1,10 +1,10 @@
-function [R_t_2, R_t_3] = R_t_from_TFT(T, CalM, Corresp)
+function [R_t_2, R_t_3] = PoseEstfromTFT(T, CalM, Corresp)
 
     N = size(Corresp, 2);
     K1 = CalM(1:3, :); K2 = CalM(4:6, :); K3 = CalM(7:9, :);
 
     % 'remove' calibration from the tensor
-    T = transform_TFT(T, K1, K2, K3, 1);
+    T = TransformTFT(T, K1, K2, K3, 1);
 
     % epipoles and essential matrix
     [~, ~, V] = svd(T(:, :, 1)); v1 = V(:, end);
@@ -17,8 +17,8 @@ function [R_t_2, R_t_3] = R_t_from_TFT(T, CalM, Corresp)
     [~, ~, V] = svd(T(:, :, 3).'); v3 = V(:, end);
     [~, ~, V] = svd([v1 v2 v3].'); epi21 = V(:, end) * sign(V(end));
 
-    E21 = crossM(epi21) * [T(:, :, 1) * epi31 T(:, :, 2) * epi31 T(:, :, 3) * epi31];
-    E31 = -crossM(epi31) * [T(:, :, 1).' * epi21 T(:, :, 2).' * epi21 T(:, :, 3).' * epi21];
+    E21 = CrossProdMatrix(epi21) * [T(:, :, 1) * epi31 T(:, :, 2) * epi31 T(:, :, 3) * epi31];
+    E31 = -CrossProdMatrix(epi31) * [T(:, :, 1).' * epi21 T(:, :, 2).' * epi21 T(:, :, 3).' * epi21];
 
     % Find R2 and t2 from E21
     [R2, t2] = recover_R_t(E21, K1, K2, Corresp(1:2, :), Corresp(3:4, :));
@@ -29,7 +29,7 @@ function [R_t_2, R_t_3] = R_t_from_TFT(T, CalM, Corresp)
     % Find the norm of t3 using the image points and reconstruction from
     % images 1 and 2
     u3 = K3 * t3;
-    X = triangulation3D({K1 * eye(3, 4), K2 * [R2, t2]}, Corresp(1:4, :));
+    X = Triangulate3DPoints({K1 * eye(3, 4), K2 * [R2, t2]}, Corresp(1:4, :));
     X = X(1:3, :) ./ repmat(X(4, :), 3, 1);
     X3 = K3 * R3 * X;
     lam = -sum(dot(cross([Corresp(5:6, :); ones(1, N)], X3, 1), cross([Corresp(5:6, :); ones(1, N)], repmat(u3, 1, N)), 1)) / ...
@@ -60,7 +60,7 @@ function [R_f, t_f] = recover_R_t(E21, K1, K2, x1, x2)
             R = Rp;
         end
 
-        X1 = triangulation3D({K1 * eye(3, 4), K2 * [R, t]}, [x1; x2]); X1 = X1 ./ repmat(X1(4, :), 4, 1);
+        X1 = Triangulate3DPoints({K1 * eye(3, 4), K2 * [R, t]}, [x1; x2]); X1 = X1 ./ repmat(X1(4, :), 4, 1);
         X2 = [R t] * X1;
 
         if sum(sign(X1(3, :)) + sign(X2(3, :))) >= num_points_seen

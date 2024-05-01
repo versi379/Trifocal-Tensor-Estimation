@@ -1,4 +1,4 @@
-function space_points = triangulation3D(Pcam, image_points)
+function space_points = Triangulate3DPoints(Pcam, image_points)
 
     M = size(Pcam, 2); % number of images
 

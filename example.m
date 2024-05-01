@@ -29,17 +29,17 @@ seed=1;     % seed for random generation
 f=50;       % focal length in mm
 angle=0;    % default angle (no collinearity of camera centers)
 
-[CalM,R_t0,Corresp,points3D]=generateSyntheticScene(N,noise,seed,f,angle);
+[CalM,R_t0,Corresp,points3D]=GenerateSyntheticScene(N,noise,seed,f,angle);
 
 %% Test a method
 
 method={...
-    @LinearTFTPoseEstimation,...    % 1 - TFT - Linear estimation
-    @ResslTFTPoseEstimation,...     % 2 - TFT - Ressl
-    @NordbergTFTPoseEstimation,...  % 3 - TFT - Nordberg
-    @FaugPapaTFTPoseEstimation,...  % 4 - TFT - Faugeras&Papadopoulo 
-    @PiPoseEstimation,...           % 5 - Pi matrices - Ponce&Hebert
-    @PiColPoseEstimation,...        % 6 - Pi matrices - Ponce&Hebert for collinear cameras
+    @LinearTFTPoseEst,...    % 1 - TFT - Linear estimation
+    @ResslTFTPoseEst,...     % 2 - TFT - Ressl
+    @NordbergTFTPoseEst,...  % 3 - TFT - Nordberg
+    @FaugPapaTFTPoseEst,...  % 4 - TFT - Faugeras&Papadopoulo 
+    @PiPoseEst,...           % 5 - Pi matrices - Ponce&Hebert
+    @PiColPoseEst,...        % 6 - Pi matrices - Ponce&Hebert for collinear cameras
     @LinearFMPoseEstimation,...      % 7 - Fundamental matrices - Linear estimation
     @OptimalFMPoseEst};         % 8 - Fundamental matrices - Optimized
 
@@ -53,8 +53,8 @@ repr_err=ReprError({CalM(1:3,:)*eye(3,4),CalM(4:6,:)*R_t_2,CalM(7:9,:)*R_t_3},..
 fprintf('Reprojection error is %f .\n',repr_err);
 
 % angular errors
-[rot2_err,t2_err]=AngError(R_t0{1},R_t_2);
-[rot3_err,t3_err]=AngError(R_t0{2},R_t_3);
+[rot2_err,t2_err]=RTError(R_t0{1},R_t_2);
+[rot3_err,t3_err]=RTError(R_t0{2},R_t_3);
 
 fprintf('Angular errors in rotations are %f and %f, and in translations are %f and %f .\n',...
     rot2_err,rot3_err,t2_err,t3_err);
@@ -65,8 +65,8 @@ fprintf('Angular errors in rotations are %f and %f, and in translations are %f a
 fprintf('Reprojection error is %f after Bundle Adjustment.\n',repr_err);
 
 % angular errors
-[rot2_err,t2_err]=AngError(R_t0{1},R_t_ref(4:6,:));
-[rot3_err,t3_err]=AngError(R_t0{2},R_t_ref(7:9,:));
+[rot2_err,t2_err]=RTError(R_t0{1},R_t_ref(4:6,:));
+[rot3_err,t3_err]=RTError(R_t0{2},R_t_ref(7:9,:));
 fprintf('Angular errors in rotations after BA are %f and %f, and in translations are %f and %f .\n',...
     rot2_err,rot3_err,t2_err,t3_err);
 

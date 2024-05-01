@@ -1,4 +1,4 @@
-function [R_t_2, R_t_3, Reconst, T, iter] = PiColPoseEstimation(Corresp, CalM)
+function [R_t_2, R_t_3, Reconst, T, iter] = PiColPoseEst(Corresp, CalM)
 
     % Number of correspondences
     N = size(Corresp, 2);
@@ -9,7 +9,7 @@ function [R_t_2, R_t_3, Reconst, T, iter] = PiColPoseEstimation(Corresp, CalM)
     [x3, Normal3] = Normalize2DPoints(Corresp(5:6, :));
 
     % First approximation of T: linear equations
-    [~, P1, P2, P3] = linearTFT(x1, x2, x3);
+    [~, P1, P2, P3] = LinearTFT(x1, x2, x3);
 
     % find homography H sending camera centers to fundamental points
     M = [null(P1), null(P2)];
@@ -60,7 +60,7 @@ function [R_t_2, R_t_3, Reconst, T, iter] = PiColPoseEstimation(Corresp, CalM)
     Pi3(1:2, :) = Pi3(1:2, :) - Pi3([1 1], :);
 
     P1 = P1 * inv(Q2 * Q1); P2 = P2 * inv(Q2 * Q1); P3 = P3 * inv(Q2 * Q1);
-    points3D = triangulation3D({P1, P2, P3}, [x1; x2; x3]);
+    points3D = Triangulate3DPoints({P1, P2, P3}, [x1; x2; x3]);
     p1_est = P1 * points3D; p1_est = p1_est(1:2, :) ./ repmat(p1_est(3, :), 2, 1);
     p2_est = P2 * points3D; p2_est = p2_est(1:2, :) ./ repmat(p2_est(3, :), 2, 1);
     p3_est = P3 * points3D; p3_est = p3_est(1:2, :) ./ repmat(p3_est(3, :), 2, 1);
@@ -71,7 +71,7 @@ function [R_t_2, R_t_3, Reconst, T, iter] = PiColPoseEstimation(Corresp, CalM)
     x_est = reshape([p1_est; p2_est; p3_est], 6 * N, 1);
     y = zeros(0, 1);
     P = eye(6 * N);
-    [~, pi_opt, ~, iter] = Gauss_Helmert(@constraintsGH_PiCM, x_est, pi, y, x, P);
+    [~, pi_opt, ~, iter] = GaussHelmert(@constraintsGH_PiCM, x_est, pi, y, x, P);
 
     % retrieve geometry from parameters
     Pi1 = (reshape(pi_opt(1:9), 3, 3)).';
@@ -81,16 +81,16 @@ function [R_t_2, R_t_3, Reconst, T, iter] = PiColPoseEstimation(Corresp, CalM)
     P1(:, 2:4) = inv(Pi1);
     P2(:, [1 3 4]) = inv(Pi2);
     P3(:, 2:4) = inv(Pi3); P3(:, 1) = -P3(:, 2);
-    T = TFT_from_P(P1, P2, P3);
+    T = TFTfromProj(P1, P2, P3);
 
     % denormalization
-    T = transform_TFT(T, Normal1, Normal2, Normal3, 1);
+    T = TransformTFT(T, Normal1, Normal2, Normal3, 1);
 
     % Find orientation using calibration and TFT
-    [R_t_2, R_t_3] = R_t_from_TFT(T, CalM, Corresp);
+    [R_t_2, R_t_3] = PoseEstfromTFT(T, CalM, Corresp);
 
     % Find 3D points by triangulation
-    Reconst = triangulation3D({CalM(1:3, :) * eye(3, 4), CalM(4:6, :) * R_t_2, CalM(7:9, :) * R_t_3}, Corresp);
+    Reconst = Triangulate3DPoints({CalM(1:3, :) * eye(3, 4), CalM(4:6, :) * R_t_2, CalM(7:9, :) * R_t_3}, Corresp);
     Reconst = Reconst(1:3, :) ./ repmat(Reconst(4, :), 3, 1);
 end
 

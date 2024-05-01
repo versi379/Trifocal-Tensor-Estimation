@@ -6,7 +6,7 @@ function error = ReprError(ProjM, Corresp, Points3D)
 
     % compute 3D triangulation if necessary
     if nargin ~= 3
-        Points3D_est = triangulation3D(ProjM, Corresp);
+        Points3D_est = Triangulate3DPoints(ProjM, Corresp);
     elseif size(Points3D, 1) == 3
         Points3D_est = [Points3D; ones(1, N)];
     elseif size(Points3D, 1) == 4

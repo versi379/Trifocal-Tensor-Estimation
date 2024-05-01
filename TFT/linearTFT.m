@@ -1,4 +1,4 @@
-function [T, P1, P2, P3] = linearTFT(p1, p2, p3)
+function [T, P1, P2, P3] = LinearTFT(p1, p2, p3)
 
     N = size(p1, 2);
     A = zeros(4 * N, 27); % matrix of the linear system on the parameters of the TFT

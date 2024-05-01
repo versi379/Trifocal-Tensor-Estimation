@@ -1,4 +1,4 @@
-function [R_t_2, R_t_3, Reconst, T, iter] = NordbergTFTPoseEstimation(Corresp, CalM)
+function [R_t_2, R_t_3, Reconst, T, iter] = NordbergTFTPoseEst(Corresp, CalM)
 
     % Normalization of the data
     [x1, Normal1] = Normalize2DPoints(Corresp(1:2, :));
@@ -6,7 +6,7 @@ function [R_t_2, R_t_3, Reconst, T, iter] = NordbergTFTPoseEstimation(Corresp, C
     [x3, Normal3] = Normalize2DPoints(Corresp(5:6, :));
 
     % Model to estimate T: linear equations
-    [T, P1, P2, P3] = linearTFT(x1, x2, x3);
+    [T, P1, P2, P3] = LinearTFT(x1, x2, x3);
 
     % apply projective transformation so matrix B ( P3=[B|b] ) has full rank
     H = eye(4);
@@ -23,9 +23,9 @@ function [R_t_2, R_t_3, Reconst, T, iter] = NordbergTFTPoseEstimation(Corresp, C
     A = P2(:, 1:3); a = P2(:, 4); r = A \ a;
     B = P3(:, 1:3); b = P3(:, 4); s = B \ b;
 
-    U = [r, crossM(r) ^ 2 * s, crossM(r) * s]; U = U * (U' * U) ^ (-1/2); U = sign(det(U)) * U;
-    V = [a, crossM(a) * A * s, crossM(a) ^ 2 * A * s]; V = V * (V' * V) ^ (-1/2); V = sign(det(V)) * V;
-    W = [b, crossM(b) * B * r, crossM(b) ^ 2 * B * r]; W = W * (W' * W) ^ (-1/2); W = sign(det(W)) * W;
+    U = [r, CrossProdMatrix(r) ^ 2 * s, CrossProdMatrix(r) * s]; U = U * (U' * U) ^ (-1/2); U = sign(det(U)) * U;
+    V = [a, CrossProdMatrix(a) * A * s, CrossProdMatrix(a) ^ 2 * A * s]; V = V * (V' * V) ^ (-1/2); V = sign(det(V)) * V;
+    W = [b, CrossProdMatrix(b) * B * r, CrossProdMatrix(b) ^ 2 * B * r]; W = W * (W' * W) ^ (-1/2); W = sign(det(W)) * W;
 
     % good representation of U V W
     [~, ~, v] = svd(U - eye(3)); vec_u = v(:, 3);
@@ -42,7 +42,7 @@ function [R_t_2, R_t_3, Reconst, T, iter] = NordbergTFTPoseEstimation(Corresp, C
 
     % compute 3D estimated points to have initial estimated reprojected image
     % points
-    points3D = triangulation3D({P1, P2, P3}, [x1; x2; x3]);
+    points3D = Triangulate3DPoints({P1, P2, P3}, [x1; x2; x3]);
     p1_est = P1 * points3D; p1_est = p1_est(1:2, :) ./ repmat(p1_est(3, :), 2, 1);
     p2_est = P2 * points3D; p2_est = p2_est(1:2, :) ./ repmat(p2_est(3, :), 2, 1);
     p3_est = P3 * points3D; p3_est = p3_est(1:2, :) ./ repmat(p3_est(3, :), 2, 1);
@@ -52,15 +52,15 @@ function [R_t_2, R_t_3, Reconst, T, iter] = NordbergTFTPoseEstimation(Corresp, C
     param0 = [vec_u * o_u; vec_v * o_v; vec_w * o_w; paramT];
     obs = reshape([x1(1:2, :); x2(1:2, :); x3(1:2, :)], 6 * N, 1);
     obs_est = reshape([p1_est; p2_est; p3_est], 6 * N, 1);
-    [~, param, ~, iter] = Gauss_Helmert(@constrGH, obs_est, param0, zeros(0, 1), obs, eye(6 * N));
+    [~, param, ~, iter] = GaussHelmert(@constrGH, obs_est, param0, zeros(0, 1), obs, eye(6 * N));
 
     % recover orthogonal matrices from optimized parameters
     o_u = norm(param(1:3)); vec_u = param(1:3) / o_u;
     o_v = norm(param(4:6)); vec_v = param(4:6) / o_v;
     o_w = norm(param(7:9)); vec_w = param(7:9) / o_w;
-    U = eye(3) + sin(o_u) * crossM(vec_u) + (1 - cos(o_u)) * crossM(vec_u) ^ 2;
-    V = eye(3) + sin(o_v) * crossM(vec_v) + (1 - cos(o_v)) * crossM(vec_v) ^ 2;
-    W = eye(3) + sin(o_w) * crossM(vec_w) + (1 - cos(o_w)) * crossM(vec_w) ^ 2;
+    U = eye(3) + sin(o_u) * CrossProdMatrix(vec_u) + (1 - cos(o_u)) * CrossProdMatrix(vec_u) ^ 2;
+    V = eye(3) + sin(o_v) * CrossProdMatrix(vec_v) + (1 - cos(o_v)) * CrossProdMatrix(vec_v) ^ 2;
+    W = eye(3) + sin(o_w) * CrossProdMatrix(vec_w) + (1 - cos(o_w)) * CrossProdMatrix(vec_w) ^ 2;
 
     % sparse tensor from optimized parameters
     Ts = zeros(3, 3, 3);
@@ -70,13 +70,13 @@ function [R_t_2, R_t_3, Reconst, T, iter] = NordbergTFTPoseEstimation(Corresp, C
     T = transf_t(Ts, U', V', W');
 
     % denormalization
-    T = transform_TFT(T, Normal1, Normal2, Normal3, 1);
+    T = TransformTFT(T, Normal1, Normal2, Normal3, 1);
 
     % Find orientation using calibration and TFT
-    [R_t_2, R_t_3] = R_t_from_TFT(T, CalM, Corresp);
+    [R_t_2, R_t_3] = PoseEstfromTFT(T, CalM, Corresp);
 
     % Find 3D points by triangulation
-    Reconst = triangulation3D({CalM(1:3, :) * eye(3, 4), CalM(4:6, :) * R_t_2, CalM(7:9, :) * R_t_3}, Corresp);
+    Reconst = Triangulate3DPoints({CalM(1:3, :) * eye(3, 4), CalM(4:6, :) * R_t_2, CalM(7:9, :) * R_t_3}, Corresp);
     Reconst = Reconst(1:3, :) ./ repmat(Reconst(4, :), 3, 1);
 
 end
@@ -89,9 +89,9 @@ function [f, g, A, B, C, D] = constrGH(obs, x, ~)
     o_u = norm(x(1:3)); vec_u = x(1:3) / o_u;
     o_v = norm(x(4:6)); vec_v = x(4:6) / o_v;
     o_w = norm(x(7:9)); vec_w = x(7:9) / o_w;
-    U = eye(3) + sin(o_u) * crossM(vec_u) + (1 - cos(o_u)) * crossM(vec_u) ^ 2;
-    V = eye(3) + sin(o_v) * crossM(vec_v) + (1 - cos(o_v)) * crossM(vec_v) ^ 2;
-    W = eye(3) + sin(o_w) * crossM(vec_w) + (1 - cos(o_w)) * crossM(vec_w) ^ 2;
+    U = eye(3) + sin(o_u) * CrossProdMatrix(vec_u) + (1 - cos(o_u)) * CrossProdMatrix(vec_u) ^ 2;
+    V = eye(3) + sin(o_v) * CrossProdMatrix(vec_v) + (1 - cos(o_v)) * CrossProdMatrix(vec_v) ^ 2;
+    W = eye(3) + sin(o_w) * CrossProdMatrix(vec_w) + (1 - cos(o_w)) * CrossProdMatrix(vec_w) ^ 2;
 
     % sparse tensor
     paramT = x(10:19);
@@ -141,18 +141,18 @@ function [f, g, A, B, C, D] = constrGH(obs, x, ~)
     e = eye(3);
 
     for i = 1:3
-        dU(:, :, i) = -vec_u(i) * sin(o_u) * eye(3) + vec_u(i) * cos(o_u) * crossM(vec_u) + ...
-            sin(o_u) * (1 / o_u) * (crossM(e(:, i)) - vec_u(i) * crossM(vec_u)) + ...
+        dU(:, :, i) = -vec_u(i) * sin(o_u) * eye(3) + vec_u(i) * cos(o_u) * CrossProdMatrix(vec_u) + ...
+            sin(o_u) * (1 / o_u) * (CrossProdMatrix(e(:, i)) - vec_u(i) * CrossProdMatrix(vec_u)) + ...
             vec_u(i) * sin(o_u) * (vec_u * vec_u') + ...
             (1 - cos(o_u)) * (1 / o_u) * (vec_u * e(i, :) + e(:, i) * vec_u' - 2 * vec_u(i) * (vec_u * vec_u'));
 
-        dV(:, :, i) = -vec_v(i) * sin(o_v) * eye(3) + vec_v(i) * cos(o_v) * crossM(vec_v) + ...
-            sin(o_v) * (1 / o_v) * (crossM(e(:, i)) - vec_v(i) * crossM(vec_v)) + ...
+        dV(:, :, i) = -vec_v(i) * sin(o_v) * eye(3) + vec_v(i) * cos(o_v) * CrossProdMatrix(vec_v) + ...
+            sin(o_v) * (1 / o_v) * (CrossProdMatrix(e(:, i)) - vec_v(i) * CrossProdMatrix(vec_v)) + ...
             vec_v(i) * sin(o_v) * (vec_v * vec_v') + ...
             (1 - cos(o_v)) * (1 / o_v) * (vec_v * e(i, :) + e(:, i) * vec_v' - 2 * vec_v(i) * (vec_v * vec_v'));
 
-        dW(:, :, i) = -vec_w(i) * sin(o_w) * eye(3) + vec_w(i) * cos(o_w) * crossM(vec_w) + ...
-            sin(o_w) * (1 / o_w) * (crossM(e(:, i)) - vec_w(i) * crossM(vec_w)) + ...
+        dW(:, :, i) = -vec_w(i) * sin(o_w) * eye(3) + vec_w(i) * cos(o_w) * CrossProdMatrix(vec_w) + ...
+            sin(o_w) * (1 / o_w) * (CrossProdMatrix(e(:, i)) - vec_w(i) * CrossProdMatrix(vec_w)) + ...
             vec_w(i) * sin(o_w) * (vec_w * vec_w') + ...
             (1 - cos(o_w)) * (1 / o_w) * (vec_w * e(i, :) + e(:, i) * vec_w' - 2 * vec_w(i) * (vec_w * vec_w'));
     end

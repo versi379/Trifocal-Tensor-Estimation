@@ -1,4 +1,4 @@
-function T = TFT_from_P(P1, P2, P3)
+function T = TFTfromProj(P1, P2, P3)
 
     T = zeros(3, 3, 3);
 

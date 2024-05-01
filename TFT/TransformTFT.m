@@ -1,4 +1,4 @@
-function T_new = transform_TFT(T_old, M1, M2, M3, inverse)
+function T_new = TransformTFT(T_old, M1, M2, M3, inverse)
 
     if nargin < 5
         inverse = 0;

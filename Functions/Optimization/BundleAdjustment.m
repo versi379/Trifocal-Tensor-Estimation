@@ -31,7 +31,7 @@ function [R_t, Reconst, iter, repr_err] = BundleAdjustment(CalM, R_t_0, Corresp,
                                      CalM(3 * j - 2:3 * j, :) * R_t_0(3 * j - 2:3 * j, :)};
             end
 
-            X = triangulation3D(cameras, points);
+            X = Triangulate3DPoints(cameras, points);
             Reconst0(:, i) = X(1:3) / X(4);
         end
 

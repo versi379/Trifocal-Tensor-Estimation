@@ -42,13 +42,13 @@ function [F, iter] = OptimalFM(p1, p2)
     % --- OPTIMIZED GAUSS-HELMERT ALGORITHM ---
 
     % Initial estimate of F
-    F = LinearFMM(x1, x2); F = F / sqrt(sum(F(1:9) .^ 2));
+    F = LinearFM(x1, x2); F = F / sqrt(sum(F(1:9) .^ 2));
 
     % Projection matrices from F and 3D points
     [U, ~, ~] = svd(F); epi21 = U(:, 3);
     P1 = eye(3, 4);
-    P2 = [crossM(epi21) * F epi21];
-    points3D = triangulation3D({P1, P2}, [x1; x2]);
+    P2 = [CrossProdMatrix(epi21) * F epi21];
+    points3D = Triangulate3DPoints({P1, P2}, [x1; x2]);
 
     % Refinement using GH on F parameters
     p1_est = P1 * points3D; p1_est = p1_est(1:2, :) ./ repmat(p1_est(3, :), 2, 1);
@@ -58,7 +58,7 @@ function [F, iter] = OptimalFM(p1, p2)
     x_est = reshape([p1_est; p2_est], 4 * N, 1);
     y = zeros(0, 1);
     P = eye(4 * N);
-    [~, p_opt, ~, iter] = Gauss_Helmert(@constraintsGH_F, x_est, p, y, x, P);
+    [~, p_opt, ~, iter] = GaussHelmert(@constraintsGH_F, x_est, p, y, x, P);
 
     % Recover parameters
     F = reshape(p_opt, 3, 3);

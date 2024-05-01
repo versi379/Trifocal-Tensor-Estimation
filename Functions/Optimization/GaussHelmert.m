@@ -1,4 +1,4 @@
-function [x_opt, t_opt, y_opt, iter] = Gauss_Helmert(func, x0, t0, y0, x, P)
+function [x_opt, t_opt, y_opt, iter] = GaussHelmert(func, x0, t0, y0, x, P)
 
     it_max = 400;
     tol = 1e-6;
