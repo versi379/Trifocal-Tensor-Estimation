@@ -1,9 +1,8 @@
-%LINEARTFT Linear estimation of the TFT
-%
-%  Estimation of the trifocal tensor from triplets of corresponding image
-%  points by algebraic minimization of the linear contraints given by the
-%  incidence relationships. The three projection matrices are also computed
-%  using the TFT.
+% Description: 
+% This function computes the Trifocal Tensor (TFT) from triplets of corresponding image
+% points by algebraic minimization of the linear contraints given by the
+% incidence relationships. The three projection matrices are also computed
+% using the TFT.
 %
 % Input:
 % p1, p2, p3: 3 vectors 3xN or 2xN containing image points for image 1 2

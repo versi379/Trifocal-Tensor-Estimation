@@ -1,16 +1,16 @@
 % Description:
-% This function estimates the pose of three views based on matchingPointsonding
-% triplets of points, using the Nordberg's parameterization of the TFT.
+% This function estimates the pose of three views based on corresponding
+% triplets of points, using the Ponce-Hebert's parameterization for collinear cameras of the TFT.
 % An initial trifocal tensor is computed linearly from the trilinearities
-% using the triplets of matchingPointsondences. Then a minimal parameterization is
+% using the triplets of correspondences. Then a minimal parameterization is
 % computed using the constraints presented in Section X (Report).
 % After the optimization the essential matrices are 
 % computed from the tensor and the orientations are extracted by SVD.
-%
+% 
 % Input:
 % matchingPoints: 6xN matrix, containing in each column the 3 projections of
 %                 the same space point onto the 3 images
-% calMatricesatrices: 9x3 matrix containing the 3x3 calibration matrices for
+% calMatrices: 9x3 matrix containing the 3x3 calibration matrices for
 %              each camera concatenated
 %
 % Output:
@@ -19,7 +19,7 @@
 % R_t_3: 3x4 matrix containing the rotation matrix and translation
 %        vector [R3,t3] for the third camera
 % Rec: 3xN matrix containing the 3D Recruction of the
-%      matchingPointsondences
+%      correspsondences
 % iter: number of iterations needed in GH algorithm to reach minimum
 
 function [R_t_2, R_t_3, Rec, T, iter] = PiColPoseEst(matchingPoints, calMatrices)

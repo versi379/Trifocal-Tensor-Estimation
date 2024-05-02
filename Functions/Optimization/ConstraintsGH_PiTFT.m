@@ -1,7 +1,6 @@
 % This function implements constraints and parameters for the optimization
 % of the Ponce-Hebert's parameterization with Gauss-Helmert.
 
-
 function [f, g, A, B, C, D] = ConstraintsGH_PiTFT(x, pi, ~, ~)
 
     N = size(x, 1) / 6;

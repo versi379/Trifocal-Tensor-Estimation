@@ -1,15 +1,6 @@
-% --- COMPLETED ---
-
 % This function takes a set of points in 2D space and returns
 % a normalization matrix that, applied to the points (in homogeneous coordinates),
-% transforms them to have a mean at the origin (0,0) and an average distance to the origin equal to sqrt(2)
-%
-% Input:
-%  - points: 2xN matrix of N 2-dimensional points (cartesian)
-%
-% Output:
-%  - normMatrix: 3x3 isometric normalization matrix
-%  - normPoints: 3xN matrix of N 2-dimensional points (homogeneous)
+% transforms them to have a mean at the origin (0,0) and an average distance to the origin equal to sqrt(2).
 
 function [normPoints, normMatrix] = Normalize2DPoints(points)
 

@@ -1,12 +1,12 @@
 % Description:
-% This function estimates the pose of three views based on matchingPointsonding
+% This function estimates the pose of three views based on corresponding
 % triplets of points, using algebraic minimization of the linear contraints 
 % given by the incidence relationships.
 %
 % Input:
 % matchingPoints: 6xN matrix, containing in each column the 3 projections of
 %                 the same space point onto the 3 images
-% calMatricesatrices: 9x3 matrix containing the 3x3 calibration matrices for
+% calMatrices: 9x3 matrix containing the 3x3 calibration matrices for
 %              each camera concatenated
 %
 % Output:
@@ -15,7 +15,7 @@
 % R_t_3: 3x4 matrix containing the rotation matrix and translation
 %        vector [R3,t3] for the third camera
 % Rec: 3xN matrix containing the 3D Recruction of the
-%      matchingPointsondences
+%      correspsondences
 % iter: number of iterations needed in GH algorithm to reach minimum
 
 function [R_t_2, R_t_3, Rec, T, iter] = LinearTFTPoseEst(matchingPoints, calMatrices)
