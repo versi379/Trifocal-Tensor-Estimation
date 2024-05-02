@@ -1,3 +1,29 @@
+%FAUGPAPATFTPOSEESTIMATION Pose estimation of 3 views from corresponding
+% triplets of points using the TriFocal Tensor with minimal constraints
+% by T. Papadopoulo and O. Faugeras.
+%
+%  An initial trifocal tensor is computed linearly from the trilinearities
+%  using the triplets of correspondences. Then a minimal parameterization is
+%  computed using the constraints presented in "A non linear method for
+%  estimatin the projective geometry of three views" by O. Faugeras and
+%  T. Papadopoulo. After the optimization the essential matrices are 
+%  computed from the tensor and the orientations are extracted by SVD.
+% 
+% Input:
+% matchingPoints: 6xN matrix, containing in each column the 3 projections of
+%                 the same space point onto the 3 images
+% calMatrices: 9x3 matrix containing the 3x3 calibration matrices for
+%              each camera concatenated
+%
+% Output:
+% R_t_2: 3x4 matrix containing the rotation matrix and translation
+%        vector [R2,t2] for the second camera
+% R_t_3: 3x4 matrix containing the rotation matrix and translation
+%        vector [R3,t3] for the third camera
+% Rec: 3xN matrix containing the 3D reconstruction of the
+%      correspondences
+% iter: number of iterations needed in GH algorithm to reach minimum
+
 function [R_t_2, R_t_3, Reconst, T, iter] = FaugPapaTFTPoseEst(Corresp, CalM)
 
     % Normalization of the data

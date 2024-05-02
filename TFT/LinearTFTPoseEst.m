@@ -1,3 +1,18 @@
+% Input:
+% matchingPoints: 6xN matrix, containing in each column the 3 projections of
+%                 the same space point onto the 3 images
+% calMatrices: 9x3 matrix containing the 3x3 calibration matrices for
+%              each camera concatenated
+%
+% Output:
+% R_t_2: 3x4 matrix containing the rotation matrix and translation
+%        vector [R2,t2] for the second camera
+% R_t_3: 3x4 matrix containing the rotation matrix and translation
+%        vector [R3,t3] for the third camera
+% Rec: 3xN matrix containing the 3D reconstruction of the
+%      correspondences
+% iter: number of iterations needed in GH algorithm to reach minimum
+
 function [R_t_2, R_t_3, Reconst, T, iter] = LinearTFTPoseEst(Corresp, CalM)
 
     % Normalization of the data
