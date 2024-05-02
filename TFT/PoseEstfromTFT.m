@@ -21,10 +21,10 @@ function [R_t_2, R_t_3] = PoseEstfromTFT(T, CalM, Corresp)
     E31 = -CrossProdMatrix(epi31) * [T(:, :, 1).' * epi21 T(:, :, 2).' * epi21 T(:, :, 3).' * epi21];
 
     % Find R2 and t2 from E21
-    [R2, t2] = recover_R_t(E21, K1, K2, Corresp(1:2, :), Corresp(3:4, :));
+    [R2, t2] = ExtractRTfromEM(E21, K1, K2, Corresp(1:2, :), Corresp(3:4, :));
 
     % Find R3 and t3 from E31
-    [R3, t3] = recover_R_t(E31, K1, K3, Corresp(1:2, :), Corresp(5:6, :));
+    [R3, t3] = ExtractRTfromEM(E31, K1, K3, Corresp(1:2, :), Corresp(5:6, :));
 
     % Find the norm of t3 using the image points and reconstruction from
     % images 1 and 2
@@ -40,34 +40,3 @@ function [R_t_2, R_t_3] = PoseEstfromTFT(T, CalM, Corresp)
 
 end
 
-%%% Extracts rotation and translation from essential matrix
-function [R_f, t_f] = recover_R_t(E21, K1, K2, x1, x2)
-
-    W = [0 -1 0; 1 0 0; 0 0 1];
-    [U, ~, V] = svd(E21);
-    R = U * W * V.'; Rp = U * W.' * V.';
-    R = R * sign(det(R)); Rp = Rp * sign(det(Rp));
-    t = U(:, 3);
-
-    %from the 4 possible solutions find the correct one using the image points
-    num_points_seen = 0;
-
-    for k = 1:4
-
-        if k == 2 || k == 4
-            t = -t;
-        elseif k == 3
-            R = Rp;
-        end
-
-        X1 = Triangulate3DPoints({K1 * eye(3, 4), K2 * [R, t]}, [x1; x2]); X1 = X1 ./ repmat(X1(4, :), 4, 1);
-        X2 = [R t] * X1;
-
-        if sum(sign(X1(3, :)) + sign(X2(3, :))) >= num_points_seen
-            R_f = R; t_f = t;
-            num_points_seen = sum(sign(X1(3, :)) + sign(X2(3, :)));
-        end
-
-    end
-
-end

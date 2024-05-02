@@ -1,5 +1,4 @@
-% --- DF ---
-
+% Description:
 % This function computes the FM from corresponding points in two images
 % using Gauss-Helmert optimization, initialized by the linear solution.
 %
@@ -41,16 +40,16 @@ function [F, iter] = OptimalFM(p1, p2)
 
     % --- OPTIMIZED GAUSS-HELMERT ALGORITHM ---
 
-    % Initial estimate of F
+    % Initial FM (linear) estimate
     F = LinearFM(x1, x2); F = F / sqrt(sum(F(1:9) .^ 2));
 
-    % Projection matrices from F and 3D points
+    % Projection matrices from FM and 3D points
     [U, ~, ~] = svd(F); epi21 = U(:, 3);
     P1 = eye(3, 4);
     P2 = [CrossProdMatrix(epi21) * F epi21];
     points3D = Triangulate3DPoints({P1, P2}, [x1; x2]);
 
-    % Refinement using GH on F parameters
+    % Refinement using GH on FM parameters
     p1_est = P1 * points3D; p1_est = p1_est(1:2, :) ./ repmat(p1_est(3, :), 2, 1);
     p2_est = P2 * points3D; p2_est = p2_est(1:2, :) ./ repmat(p2_est(3, :), 2, 1);
     p = reshape(F, 9, 1);
@@ -63,18 +62,19 @@ function [F, iter] = OptimalFM(p1, p2)
     % Recover parameters
     F = reshape(p_opt, 3, 3);
 
-    % Undo normalization
+    % Denormalization: transform FM back to original space
     F = Normal2.' * F * Normal1;
 
-    % Singularity constraint
+    % Constraint enforcement: singularity constraint
     [U, D, V] = svd(F); D(3, 3) = 0;
     F = U * D * V.';
 
 end
 
-% Constraints and parameters for the optimiZation of the FM with Gauss-Helmert
+% This function implements constraints and parameters for the optimization
+% of the FM with Gauss-Helmert.
 function [f, g, A, B, C, D] = constraintsGH_F(x, p, ~)
-   
+
     N = size(x, 1) / 4;
     x = reshape(x, 4, N);
 

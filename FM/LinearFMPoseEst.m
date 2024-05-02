@@ -1,5 +1,4 @@
-% --- DF ---
-
+% Description:
 % This function estimates the pose of three views based on corresponding
 % triplets of points, using linear fundamental matrix estimation.
 % The fundamental matrices are derived through algebraic minimization of the
@@ -9,7 +8,7 @@
 % Input:
 % matchingPoints: 6xN matrix, containing in each column the 3 projections of
 %                 the same space point onto the 3 images
-% calMatrices: 9x3 matrix containing the M calibration 3x3 matrices for
+% calMatrices: 9x3 matrix containing the 3x3 calibration matrices for
 %              each camera concatenated
 %
 % Output:
@@ -22,7 +21,11 @@
 
 function [R_t_2, R_t_3, Rec, T, iter] = LinearFMPoseEst(matchingPoints, calMatrices)
 
+    % Number of correspondence points is computed as
+    % number of columns in matrix matchingPoints
     N = size(matchingPoints, 2);
+
+    % Extract calibration matrix for each camera
     K1 = calMatrices(1:3, :); K2 = calMatrices(4:6, :); K3 = calMatrices(7:9, :);
 
     % Normalize image points
@@ -34,13 +37,13 @@ function [R_t_2, R_t_3, Rec, T, iter] = LinearFMPoseEst(matchingPoints, calMatri
     F21 = LinearFM(x1, x2);
     F31 = LinearFM(x1, x3);
 
-    % Undo normalization
+    % Denormalization: transform FMs back to original space
     F21 = Normal2.' * F21 * Normal1;
     F31 = Normal3.' * F31 * Normal1;
 
-    % Find orientation using calibration and F matrices
-    [R2, t2] = recover_R_t(K1, K2, F21, matchingPoints(1:2, :), matchingPoints(3:4, :));
-    [R3, t3] = recover_R_t(K1, K3, F31, matchingPoints(1:2, :), matchingPoints(5:6, :));
+    % Find orientation using calibration matrices and FMs
+    [R2, t2] = ExtractRTfromFM(F21, K1, K2, matchingPoints(1:2, :), matchingPoints(3:4, :));
+    [R3, t3] = ExtractRTfromFM(F31, K1, K3, matchingPoints(1:2, :), matchingPoints(5:6, :));
 
     % Find the norm of t31 using the image points and reconstruction from images 1 and 2
     u3 = K3 * t3;
@@ -51,6 +54,8 @@ function [R_t_2, R_t_3, Rec, T, iter] = LinearFMPoseEst(matchingPoints, calMatri
         sum(sum(cross([matchingPoints(5:6, :); ones(1, N)], repmat(u3, 1, N)) .^ 2));
     t3 = lam * t3;
 
+    % Matrices containing the rotation matrix and translation
+    % vector [Ri,ti] for the second and the third camera
     R_t_2 = [R2, t2]; R_t_3 = [R3, t3];
 
     % Find 3D points by triangulation
@@ -58,38 +63,5 @@ function [R_t_2, R_t_3, Rec, T, iter] = LinearFMPoseEst(matchingPoints, calMatri
     Rec = Rec(1:3, :) ./ repmat(Rec(4, :), 3, 1);
     iter = 0;
     T = TFTfromProj(K1 * eye(3, 4), K2 * R_t_2, K3 * R_t_3);
-
-end
-
-% Extracts rotation and translation from FM
-function [R_f, t_f] = recover_R_t(K1, K2, F21, x1, x2)
-
-    E21 = K2.' * F21 * K1;
-    W = [0 -1 0; 1 0 0; 0 0 1];
-    [U, ~, V] = svd(E21);
-    R = U * W * V.'; Rp = U * W.' * V.';
-    R = R * sign(det(R)); Rp = Rp * sign(det(Rp));
-    t = U(:, 3);
-
-    % From the 4 possible solutions find the correct one using the image points
-    num_points_seen = 0;
-
-    for k = 1:4
-
-        if k == 2 || k == 4
-            t = -t;
-        elseif k == 3
-            R = Rp;
-        end
-
-        X1 = Triangulate3DPoints({[K1 [0; 0; 0]], K2 * [R, t]}, [x1; x2]); X1 = X1 ./ repmat(X1(4, :), 4, 1);
-        X2 = [R t] * X1;
-
-        if sum(sign(X1(3, :)) + sign(X2(3, :))) >= num_points_seen
-            R_f = R; t_f = t;
-            num_points_seen = sum(sign(X1(3, :)) + sign(X2(3, :)));
-        end
-
-    end
 
 end

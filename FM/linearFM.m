@@ -55,8 +55,7 @@ function F = LinearFM(p1, p2)
     % Initial FM estimate
     F = reshape(V(:, size(V, 2)), 3, 3);
 
-    % Denormalization: transform FM back to
-    % original space
+    % Denormalization: transform FM back to original space
     F = Normal2.' * F * Normal1;
 
     % Constraint enforcement: singularity constraint
