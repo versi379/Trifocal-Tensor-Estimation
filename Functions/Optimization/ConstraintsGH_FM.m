@@ -1,7 +1,7 @@
 % This function implements constraints and parameters for the optimization
 % of the FM with Gauss-Helmert.
 
-function [f, g, A, B, C, D] = ConstraintsGH(x, p, ~)
+function [f, g, A, B, C, D] = ConstraintsGH_FM(x, p, ~)
 
     N = size(x, 1) / 4;
     x = reshape(x, 4, N);

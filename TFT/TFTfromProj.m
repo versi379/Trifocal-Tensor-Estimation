@@ -1,3 +1,6 @@
+% This function computes the trifocal tensor from
+% any three projection matrices.
+
 function T = TFTfromProj(P1, P2, P3)
 
     T = zeros(3, 3, 3);

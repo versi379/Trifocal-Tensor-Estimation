@@ -1,3 +1,5 @@
+% This function implements the Gauss-Helmert model.
+
 function [x_opt, t_opt, y_opt, iter] = GaussHelmert(func, x0, t0, y0, x, P)
 
     it_max = 400;

@@ -57,7 +57,7 @@ function [F, iter] = OptimalFM(p1, p2)
     x_est = reshape([p1_est; p2_est], 4 * N, 1);
     y = zeros(0, 1);
     P = eye(4 * N);
-    [~, p_opt, ~, iter] = GaussHelmert(@ConstraintsGH, x_est, p, y, x, P);
+    [~, p_opt, ~, iter] = GaussHelmert(@ConstraintsGH_FM, x_est, p, y, x, P);
 
     % Recover parameters
     F = reshape(p_opt, 3, 3);

@@ -1,3 +1,7 @@
+% This function, depending on the value of inverse, either computes
+% T_new by pre-multiplying and post-multiplying T_old with the inverses of M1, M2, and M3,
+% or with M1, M2i, and M3i. Then, it normalizes T_new to ensure its elements fall within a specified range.
+
 function T_new = TransformTFT(T_old, M1, M2, M3, inverse)
 
     if nargin < 5
