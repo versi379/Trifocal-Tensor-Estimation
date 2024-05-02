@@ -4,9 +4,9 @@
 %
 % Input:
 % p1: 3xN (homogeneous) or 2xN (cartesian) matrix
-%        of N image points in image 1
+%     of N image points in image 1
 % p2: 3xN (homogeneous) or 2xN (cartesian) matrix
-%        of N image points in image 2
+%     of N image points in image 2
 %
 % Output:
 % F: 3x3 Fundamental Matrix (FM)
@@ -57,7 +57,7 @@ function [F, iter] = OptimalFM(p1, p2)
     x_est = reshape([p1_est; p2_est], 4 * N, 1);
     y = zeros(0, 1);
     P = eye(4 * N);
-    [~, p_opt, ~, iter] = GaussHelmert(@constraintsGH_F, x_est, p, y, x, P);
+    [~, p_opt, ~, iter] = GaussHelmert(@ConstraintsGH, x_est, p, y, x, P);
 
     % Recover parameters
     F = reshape(p_opt, 3, 3);
@@ -68,37 +68,5 @@ function [F, iter] = OptimalFM(p1, p2)
     % Constraint enforcement: singularity constraint
     [U, D, V] = svd(F); D(3, 3) = 0;
     F = U * D * V.';
-
-end
-
-% This function implements constraints and parameters for the optimization
-% of the FM with Gauss-Helmert.
-function [f, g, A, B, C, D] = constraintsGH_F(x, p, ~)
-
-    N = size(x, 1) / 4;
-    x = reshape(x, 4, N);
-
-    F = reshape(p, 3, 3);
-
-    g = [det(F); sum(F(1:9) .^ 2) - 1];
-
-    C = [F(5) * F(9) - F(6) * F(8), F(6) * F(7) - F(4) * F(9), F(4) * F(8) - F(5) * F(7), ...
-             F(3) * F(8) - F(2) * F(9), F(1) * F(9) - F(3) * F(7), F(2) * F(7) - F(1) * F(8), ...
-             F(2) * F(6) - F(3) * F(5), F(3) * F(4) - F(1) * F(6), F(1) * F(5) - F(2) * F(4);
-         2 * reshape(F, 9, 1).'];
-
-    f = zeros(N, 1);
-    A = zeros(N, 9);
-    B = zeros(N, 4 * N);
-
-    for i = 1:N
-        x1 = [x(1:2, i); 1]; x2 = [x(3:4, i); 1];
-        f(i, :) = x2.' * F * x1;
-        A(i, :) = [x1(1) * x2(1), x1(1) * x2(2), x1(1), x1(2) * x2(1), x1(2) * x2(2), x1(2), x2(1), x2(2), 1];
-        B(i, 4 * (i - 1) + 1:4 * (i - 1) + 4) = [F(3) + F(1) * x2(1) + F(2) * x2(2), F(6) + F(4) * x2(1) + F(5) * x2(2), ...
-                                                     F(7) + F(1) * x1(1) + F(4) * x1(2), F(8) + F(2) * x1(1) + F(5) * x1(2)];
-    end
-
-    D = zeros(2, 0);
 
 end

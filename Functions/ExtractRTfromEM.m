@@ -1,4 +1,5 @@
 % This function extracts rotation and translation from the EM.
+
 function [R_f, t_f] = ExtractRTfromEM(E, K1, K2, x1, x2)
 
     W = [0 -1 0; 1 0 0; 0 0 1];

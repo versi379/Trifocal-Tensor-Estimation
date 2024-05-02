@@ -33,7 +33,7 @@ function [R_t_2, R_t_3, Rec, T, iter] = LinearFMPoseEst(matchingPoints, calMatri
     [x2, Normal2] = Normalize2DPoints(matchingPoints(3:4, :));
     [x3, Normal3] = Normalize2DPoints(matchingPoints(5:6, :));
 
-    % Compute FMs
+    % Compute FMs (linear estimation)
     F21 = LinearFM(x1, x2);
     F31 = LinearFM(x1, x3);
 

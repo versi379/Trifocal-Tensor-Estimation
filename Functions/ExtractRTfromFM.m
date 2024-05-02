@@ -1,4 +1,5 @@
 % This function extracts rotation and translation from the FM.
+
 function [R_f, t_f] = ExtractRTfromFM(F, K1, K2, x1, x2)
 
     E = K2.' * F * K1;
