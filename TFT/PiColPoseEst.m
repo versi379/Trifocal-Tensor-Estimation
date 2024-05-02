@@ -1,19 +1,16 @@
-%PICOLPOSEESTIMATION Pose estimation of 3 views from corresponding triplets
-% of points using the Pi matrices from Ponce&Hebert parameterizing three
-% views in the special case of collinear camera centers.
-%
-%  An initial trifocal tensor is computed linearly from the trilinearities
-%  using the triplets of correspondences. From it, initial Pi matrices are
-%  computed. Then the error is minimized using the Gauss-Helmert model to
-%  impose the minimal constraints of the Pose & Hebert Pi matrices 
-%  parameterization. After the optimization, a final TFT is computed and the
-%  essential matrices are extracted. Finally, the orientations are retrieved
-%  by SVD.
+% Description:
+% This function estimates the pose of three views based on matchingPointsonding
+% triplets of points, using the Nordberg's parameterization of the TFT.
+% An initial trifocal tensor is computed linearly from the trilinearities
+% using the triplets of matchingPointsondences. Then a minimal parameterization is
+% computed using the constraints presented in Section X (Report).
+% After the optimization the essential matrices are 
+% computed from the tensor and the orientations are extracted by SVD.
 %
 % Input:
 % matchingPoints: 6xN matrix, containing in each column the 3 projections of
 %                 the same space point onto the 3 images
-% calMatrices: 9x3 matrix containing the 3x3 calibration matrices for
+% calMatricesatrices: 9x3 matrix containing the 3x3 calibration matrices for
 %              each camera concatenated
 %
 % Output:
@@ -21,21 +18,21 @@
 %        vector [R2,t2] for the second camera
 % R_t_3: 3x4 matrix containing the rotation matrix and translation
 %        vector [R3,t3] for the third camera
-% Rec: 3xN matrix containing the 3D reconstruction of the
-%      correspondences
+% Rec: 3xN matrix containing the 3D Recruction of the
+%      matchingPointsondences
 % iter: number of iterations needed in GH algorithm to reach minimum
 
-function [R_t_2, R_t_3, Reconst, T, iter] = PiColPoseEst(Corresp, CalM)
+function [R_t_2, R_t_3, Rec, T, iter] = PiColPoseEst(matchingPoints, calMatrices)
 
-    % Number of correspondences
-    N = size(Corresp, 2);
+    % Number of matchingPointsondences
+    N = size(matchingPoints, 2);
 
-    % Normalization of the data
-    [x1, Normal1] = Normalize2DPoints(Corresp(1:2, :));
-    [x2, Normal2] = Normalize2DPoints(Corresp(3:4, :));
-    [x3, Normal3] = Normalize2DPoints(Corresp(5:6, :));
+    % Normalize image points
+    [x1, Normal1] = Normalize2DPoints(matchingPoints(1:2, :));
+    [x2, Normal2] = Normalize2DPoints(matchingPoints(3:4, :));
+    [x3, Normal3] = Normalize2DPoints(matchingPoints(5:6, :));
 
-    % First approximation of T: linear equations
+    % Compute TFT (linear estimation)
     [~, P1, P2, P3] = LinearTFT(x1, x2, x3);
 
     % find homography H sending camera centers to fundamental points
@@ -92,7 +89,7 @@ function [R_t_2, R_t_3, Reconst, T, iter] = PiColPoseEst(Corresp, CalM)
     p2_est = P2 * points3D; p2_est = p2_est(1:2, :) ./ repmat(p2_est(3, :), 2, 1);
     p3_est = P3 * points3D; p3_est = p3_est(1:2, :) ./ repmat(p3_est(3, :), 2, 1);
 
-    % minimize error using Gauss-Helmert
+    % Minimize reprojection error with Gauss-Helmert
     pi = [reshape(Pi1(2:4, :).', 9, 1); reshape(Pi2([1 3 4], :).', 9, 1); reshape(Pi3(2:4, :).', 9, 1)];
     x = reshape([x1(1:2, :); x2(1:2, :); x3(1:2, :)], 6 * N, 1);
     x_est = reshape([p1_est; p2_est; p3_est], 6 * N, 1);
@@ -110,14 +107,14 @@ function [R_t_2, R_t_3, Reconst, T, iter] = PiColPoseEst(Corresp, CalM)
     P3(:, 2:4) = inv(Pi3); P3(:, 1) = -P3(:, 2);
     T = TFTfromProj(P1, P2, P3);
 
-    % denormalization
+    % Denormalization: transform TFT back to original space
     T = TransformTFT(T, Normal1, Normal2, Normal3, 1);
 
-    % Find orientation using calibration and TFT
-    [R_t_2, R_t_3] = PoseEstfromTFT(T, CalM, Corresp);
+    % Find orientation using calibration matrices and TFT
+    [R_t_2, R_t_3] = PoseEstfromTFT(T, calMatrices, matchingPoints);
 
     % Find 3D points by triangulation
-    Reconst = Triangulate3DPoints({CalM(1:3, :) * eye(3, 4), CalM(4:6, :) * R_t_2, CalM(7:9, :) * R_t_3}, Corresp);
-    Reconst = Reconst(1:3, :) ./ repmat(Reconst(4, :), 3, 1);
+    Rec = Triangulate3DPoints({calMatrices(1:3, :) * eye(3, 4), calMatrices(4:6, :) * R_t_2, calMatrices(7:9, :) * R_t_3}, matchingPoints);
+    Rec = Rec(1:3, :) ./ repmat(Rec(4, :), 3, 1);
 end
 
