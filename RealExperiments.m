@@ -2,11 +2,12 @@ clear; close all;
 
 %% Dataset
 dataset = 'fountain-P11';
-% dataset='Herz-Jesu-P8';
+% dataset = 'Herz-Jesu-P8';
+% dataset = 'entry-P10';
 
 %% Some parameters
 
-path_to_data = strcat('Dataset/', dataset, '/cameras');
+path_to_data = strcat('Dataset/', dataset, '/cameras/');
 
 switch dataset
     case 'fountain-P11'
@@ -61,9 +62,9 @@ for it = 1:length(triplets_to_test)
         it, length(triplets_to_test), im1, im2, im3, N);
 
     % Ground truth poses and calibration
-    [K1, R1_true, t1_true, im_size] = readCalibrationOrientation_EPFL(path_to_data, im_names{im1});
-    [K2, R2_true, t2_true] = readCalibrationOrientation_EPFL(path_to_data, im_names{im2});
-    [K3, R3_true, t3_true] = readCalibrationOrientation_EPFL(path_to_data, im_names{im3});
+    [K1, R1_true, t1_true, im_size] = ExtractCalibOrient(path_to_data, im_names{im1});
+    [K2, R2_true, t2_true] = ExtractCalibOrient(path_to_data, im_names{im2});
+    [K3, R3_true, t3_true] = ExtractCalibOrient(path_to_data, im_names{im3});
     CalM = [K1; K2; K3];
     R_t0 = {[R2_true * R1_true.', t2_true - R2_true * R1_true.' * t1_true], ...
               [R3_true * R1_true.', t3_true - R3_true * R1_true.' * t1_true]};

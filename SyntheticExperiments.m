@@ -1,5 +1,9 @@
 clear; close all;
 
+%% Add functions to working dir
+
+addpath(genpath('Functions'));
+
 %% Here uncomment the variable to vary to reproduce different experiments
 option = 'noise'; % for varying noise
 % option='focal';  % for varying focal length
