@@ -1,24 +1,5 @@
-% Description:
 % This function generates a synthetic scene composed of three cameras,
 % N 3D points and their projections onto the three images.
-%
-% Input:
-% N: number of random 3D points to generate
-% noise: sigma in pixels for the gaussian noise in image points
-% seed: seed for random generation of 3D points and noise
-% focalL: focal length. Changing this parameter from 50mm, will change 
-%             also the coordinates of the camera centers ans ppal axis
-% angle: angle between the three centers in degrees. Should be in the
-%             interval [70,180], otherwise default scene is chosen
-%
-% Output:
-% calMatrices: 9x3 matrix containing the M calibration 3x3 matrices for 
-%             each camera concatenated.
-% R_t: 3-cell containing two 3x4 orientation matrices [R2,t2]
-%             and [R3,t3], the first camera is [Id,0].
-% matchingPoints: 6xN matrix containing in each column, the 3 projections of
-%             the same space point onto the 3 images.
-% points3D: 3xN matrix containing the 3D points.
 
 function [calMatrices, R_t, matchingPoints, points3D] = GenerateSyntheticScene(N, noise, seed, focalL, angle)
 

@@ -1,6 +1,6 @@
-% This function computes the rotation and translation errors.
+% This function computes the rotation and translation errors (angular errors).
 
-function [rot_err, t_err] = RTError(R_t_true, R_t_est)
+function [rot_err, t_err] = AngErrors(R_t_true, R_t_est)
 
     R_true = R_t_true(:, 1:3); t_true = R_t_true(:, 4);
     R_est = R_t_est(:, 1:3); t_est = R_t_est(:, 4);
