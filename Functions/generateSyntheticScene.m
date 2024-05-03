@@ -1,4 +1,26 @@
-function [CalM, R_t, Corresp, points3D] = GenerateSyntheticScene(N, noise, seed, focalL, angle)
+% Description:
+% This function generates a synthetic scene composed of three cameras,
+% N 3D points and their projections onto the three images.
+%
+% Input:
+% N: number of random 3D points to generate
+% noise: sigma in pixels for the gaussian noise in image points
+% seed: seed for random generation of 3D points and noise
+% focalL: focal length. Changing this parameter from 50mm, will change 
+%             also the coordinates of the camera centers ans ppal axis
+% angle: angle between the three centers in degrees. Should be in the
+%             interval [70,180], otherwise default scene is chosen
+%
+% Output:
+% calMatrices: 9x3 matrix containing the M calibration 3x3 matrices for 
+%             each camera concatenated.
+% R_t: 3-cell containing two 3x4 orientation matrices [R2,t2]
+%             and [R3,t3], the first camera is [Id,0].
+% matchingPoints: 6xN matrix containing in each column, the 3 projections of
+%             the same space point onto the 3 images.
+% points3D: 3xN matrix containing the 3D points.
+
+function [calMatrices, R_t, matchingPoints, points3D] = GenerateSyntheticScene(N, noise, seed, focalL, angle)
 
     if isempty(angle) || angle < 70 || angle > 180
         p_coll = 0; % default setting
@@ -20,9 +42,9 @@ function [CalM, R_t, Corresp, points3D] = GenerateSyntheticScene(N, noise, seed,
     C3 = k * [600; -800; -200] + k * p_coll * [0; -300; 300];
 
     %%% Rotation matrices, making the cameras point to the center of coord. (0,0,0)
-    R1 = rotation(C1, [0; 0; -1]);
-    R2 = rotation(C2, [0; 0; -1]);
-    R3 = rotation(C3, [0; 0; -1]);
+    R1 = RotMatAlign(C1, [0; 0; -1]);
+    R2 = RotMatAlign(C2, [0; 0; -1]);
+    R3 = RotMatAlign(C3, [0; 0; -1]);
 
     %%% Projection matrices normalized
     P1 = K * R1 * [eye(3) -C1]; P1 = P1 * sqrt(24) / norm(P1);
@@ -33,10 +55,10 @@ function [CalM, R_t, Corresp, points3D] = GenerateSyntheticScene(N, noise, seed,
     rng(seed)
     M = N;
     points3D = zeros(3, N);
-    Corresp = zeros(6, N);
+    matchingPoints = zeros(6, N);
     ind1 = 0;
 
-    while M > 0;
+    while M > 0
         % 3D points generation
         X = 400 * rand(3, M) - 200;
 
@@ -58,7 +80,7 @@ function [CalM, R_t, Corresp, points3D] = GenerateSyntheticScene(N, noise, seed,
             x2_noise(1, :) >= 0 & x2_noise(2, :) >= 0 & ...
             x3_noise(1, :) >= 0 & x3_noise(2, :) >= 0);
 
-        Corresp(:, ind1 + (1:length(inside))) = [x1_noise(:, inside); ...
+        matchingPoints(:, ind1 + (1:length(inside))) = [x1_noise(:, inside); ...
                                                 x2_noise(:, inside); x3_noise(:, inside)];
 
         points3D(:, ind1 + (1:length(inside))) = X(:, inside);
@@ -71,27 +93,6 @@ function [CalM, R_t, Corresp, points3D] = GenerateSyntheticScene(N, noise, seed,
 
     R_t = {R2 * [R1.' (C1 - C2)], R3 * [R1.' (C1 - C3)]};
 
-    CalM = repmat(K, 3, 1);
-
-end
-
-function R = rotation(u, v)
-
-    if size(u, 1) == 1
-        u = u.';
-    end
-
-    if size(v, 1) == 1
-        v = v.';
-    end
-
-    u = u / norm(u); v = v / norm(v);
-    w = cross(u, v);
-    s = norm(w);
-    c = dot(u, v);
-    %C=[0 -w(3) w(2); w(3) 0 -w(1); -w(2) w(1) 0];
-    %R=eye(3)+C+((1-c)/(s^2))*C^2;
-    w = w / s;
-    R = c * eye(3) + s * CrossProdMatrix(w) + (1 - c) * (w * w.');
+    calMatrices = repmat(K, 3, 1);
 
 end

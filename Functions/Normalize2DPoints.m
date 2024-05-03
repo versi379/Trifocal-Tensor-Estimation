@@ -5,7 +5,7 @@
 function [normPoints, normMatrix] = Normalize2DPoints(points)
 
     % Number of points is computed as
-    % number of columns in either matrix points
+    % number of columns in matrix points
     N = size(points, 2);
 
     % 2x1 array with mean value of each row in points

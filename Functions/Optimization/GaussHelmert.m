@@ -22,19 +22,17 @@ function [x_opt, t_opt, y_opt, iter] = GaussHelmert(func, x0, t0, y0, x, P)
             break;
         end
 
-        % temporary change from W=pinv(W) to W=inv(W)
         W = pinv(W + (1e-12) * eye(size(W, 1))); W = W + (1e-12) * eye(size(W, 1));
         w = -f - B * (x - xi);
         M = [A.' * W * A, zeros(u, s), C.'; ...
-               zeros(s, u + s), D.'; ...
-               C, D, zeros(c2, c2)];
+                 zeros(s, u + s), D.'; ...
+                 C, D, zeros(c2, c2)];
         b = [A.' * W * w; zeros(s, 1); -g];
 
         if any(isnan(M(:))) || any(isinf(M(:)))
             break;
         end
 
-        % temporary change from aux=pinv(M)*b; to a=M\b;
         aux = pinv(M + (1e-12) * eye(size(M, 1))) * b;
         dt = aux(1:u, :); dy = aux(u + 1:u + s, :);
         v = -inv(P) * B.' * (W * (A * dt - w));
@@ -43,7 +41,6 @@ function [x_opt, t_opt, y_opt, iter] = GaussHelmert(func, x0, t0, y0, x, P)
             break;
         end
 
-        %fprintf('it=%d repr err=%f\n',it,v.'*P*v);
         if sum(v.' * P * v) > objFunc * factor
             break;
         else

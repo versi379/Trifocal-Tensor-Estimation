@@ -1,32 +1,34 @@
-function error = ReprError(ProjM, Corresp, Points3D)
+% This function computes the reprojection error of N points
+% for M perspective cameras.
 
-    % computing dimensions
-    N = size(Corresp, 2);
-    M = size(ProjM, 2);
+function error = ReprError(ProjM, matchingPoints, Points3D)
 
-    % compute 3D triangulation if necessary
+    N = size(matchingPoints, 2); % Number of 3D points to reproject
+    M = size(ProjM, 2); % Number of images/cameras
+
+    % Compute triangulation of 3D points
     if nargin ~= 3
-        Points3D_est = Triangulate3DPoints(ProjM, Corresp);
+        Points3D_est = Triangulate3DPoints(ProjM, matchingPoints);
     elseif size(Points3D, 1) == 3
         Points3D_est = [Points3D; ones(1, N)];
     elseif size(Points3D, 1) == 4
         Points3D_est = Points3D;
     end
 
-    % convert to affine coordinates and adapt Corresp matrix
-    if size(Corresp, 1) == 3 * M
-        Corresp = reshape(Corresp, 3, N * M);
-        Corresp = Corresp(1:2, :) ./ repmat(Corresp(3, :), 2, 1);
+    % Convert to affine coordinates and adapt matchingPoints matrix
+    if size(matchingPoints, 1) == 3 * M
+        matchingPoints = reshape(matchingPoints, 3, N * M);
+        matchingPoints = matchingPoints(1:2, :) ./ repmat(matchingPoints(3, :), 2, 1);
     else
-        Corresp = reshape(Corresp, 2, N * M);
+        matchingPoints = reshape(matchingPoints, 2, N * M);
     end
 
-    % reproject points
+    % Reproject points
     P = cell2mat(ProjM.');
-    Corresp_est = reshape(P * Points3D_est, 3, M * N);
-    Corresp_est = Corresp_est(1:2, :) ./ repmat(Corresp_est(3, :), 2, 1);
+    matchingPointsEst = reshape(P * Points3D_est, 3, M * N);
+    matchingPointsEst = matchingPointsEst(1:2, :) ./ repmat(matchingPointsEst(3, :), 2, 1);
 
-    % compute RMS of distances
-    error = sqrt(mean(sum((Corresp_est - Corresp) .^ 2, 1)));
+    % Compute RMS of distances
+    error = sqrt(mean(sum((matchingPointsEst - matchingPoints) .^ 2, 1)));
 
 end

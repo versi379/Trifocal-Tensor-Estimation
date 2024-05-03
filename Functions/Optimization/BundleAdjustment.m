@@ -9,8 +9,8 @@
 
 function [R_t, Rec, iter, repr_err] = BundleAdjustment(calMatrices, R_t_0, matchingPoints, Rec0)
 
-    M = size(matchingPoints, 1) / 2; % Number of images/cameras
     N = size(matchingPoints, 2); % Number of 3D points to recover
+    M = size(matchingPoints, 1) / 2; % Number of images/cameras
 
     % Normalize image points
     for j = 1:M
@@ -35,7 +35,7 @@ function [R_t, Rec, iter, repr_err] = BundleAdjustment(calMatrices, R_t_0, match
                 end
 
                 aux = aux + 1;
-                points = [points; matchingPoints(2 * j - 1:2 * j, i)];
+                points = [points; matchingPoints(2 * j - 1:2 * j, i)]; %#ok<AGROW>
                 cameras = {cameras{1:(aux - 1)}, ...
                                        calMatrices(3 * j - 2:3 * j, :) * R_t_0(3 * j - 2:3 * j, :)};
             end

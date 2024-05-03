@@ -2,8 +2,8 @@
 
 function [f, J] = LeastSquareMinLM(variables, matchingPoints, calMatrices)
 
-    M = size(matchingPoints, 1) / 2; % Number of images/cameras
     N = size(matchingPoints, 2); % Number of 3D points to recover
+    M = size(matchingPoints, 1) / 2; % Number of images/cameras
 
     % Extract rotations and translations from variables
     variables = reshape(variables, 3, N + 2 * (M - 1));
