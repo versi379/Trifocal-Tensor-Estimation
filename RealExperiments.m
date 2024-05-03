@@ -70,9 +70,9 @@ for it = 1:length(triplets_to_test)
               [R3_true * R1_true.', t3_true - R3_true * R1_true.' * t1_true]};
 
     % Discart correspondances with repr_err > 1 pix
-    Reconst0 = triangulation3D({K1 * eye(3, 4), K2 * R_t0{1}, K3 * R_t0{2}}, Corresp);
+    Reconst0 = Triangulate3DPoints({K1 * eye(3, 4), K2 * R_t0{1}, K3 * R_t0{2}}, Corresp);
     Reconst0 = bsxfun(@rdivide, Reconst0(1:3, :), Reconst0(4, :));
-    Corresp_new = project3Dpoints(Reconst0, {K1 * eye(3, 4), K2 * R_t0{1}, K3 * R_t0{2}});
+    Corresp_new = Project3DPoints(Reconst0, {K1 * eye(3, 4), K2 * R_t0{1}, K3 * R_t0{2}});
     residuals = Corresp_new - Corresp; % reprojection error
     Corresp_inliers = Corresp(:, sum(abs(residuals) > repr_err_th, 1) == 0);
     N = size(Corresp_inliers, 2);
