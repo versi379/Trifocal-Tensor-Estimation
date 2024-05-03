@@ -3,7 +3,7 @@
 
 function [f, g, A, B, C, D] = ConstraintsGH_NordbergTFT(obs, x, ~)
 
-    % orthogonal matrices
+    % Orthogonal matrices
     o_u = norm(x(1:3)); vec_u = x(1:3) / o_u;
     o_v = norm(x(4:6)); vec_v = x(4:6) / o_v;
     o_w = norm(x(7:9)); vec_w = x(7:9) / o_w;
@@ -11,28 +11,28 @@ function [f, g, A, B, C, D] = ConstraintsGH_NordbergTFT(obs, x, ~)
     V = eye(3) + sin(o_v) * CrossProdMatrix(vec_v) + (1 - cos(o_v)) * CrossProdMatrix(vec_v) ^ 2;
     W = eye(3) + sin(o_w) * CrossProdMatrix(vec_w) + (1 - cos(o_w)) * CrossProdMatrix(vec_w) ^ 2;
 
-    % sparse tensor
+    % Sparse tensor
     paramT = x(10:19);
     Ts = zeros(3, 3, 3);
     param_ind = [1, 7, 10, 12, 16, 19:22, 25];
     Ts(param_ind) = paramT;
 
-    % original tensor
+    % Original tensor
     T = ComputeTensorfromMatrices(Ts, U', V', W');
 
-    % observations
+    % Observations
     obs = reshape(obs, 6, []);
     N = size(obs, 2);
 
-    f = zeros(4 * N, 1); % constraints for tensor and observations (trilinearities)
-    Ap = zeros(4 * N, 27); % jacobian of f w.r.t. the tensor T
-    B = zeros(4 * N, 6 * N); % jacobian of f w.r.t. the observations
+    f = zeros(4 * N, 1); % Constraints for tensor and observations (trilinearities)
+    Ap = zeros(4 * N, 27); % Jacobian of f w.r.t. the tensor
+    B = zeros(4 * N, 6 * N); % Jacobian of f w.r.t. the observations
 
     for i = 1:N
-        % points in the three images for correspondence i
+        % Points in the three images for correspondence i
         x1 = obs(1:2, i); x2 = obs(3:4, i); x3 = obs(5:6, i);
 
-        % 4 trilinearities
+        % Trilinearities
         ind2 = 4 * (i - 1);
         S2 = [0 -1; -1 0; x2(2) x2(1)];
         S3 = [0 -1; -1 0; x3(2) x3(1)];
@@ -48,13 +48,14 @@ function [f, g, A, B, C, D] = ConstraintsGH_NordbergTFT(obs, x, ~)
 
     % Jacobian of T=Ts(U,V,W) w.r.t. the minimal parameterization
     J = zeros(27, 19);
-    % derivatives of the parameterization w.r.t. the sparse tensor
+
+    % Derivatives of the parameterization w.r.t. the sparse tensor
     for i = 1:10
         e = zeros(3, 3, 3); e(param_ind(i)) = 1;
         J(:, i + 9) = reshape(ComputeTensorfromMatrices(e, U', V', W'), 27, 1);
     end
 
-    % derivatives of the parameterization w.r.t. the orthogonal matrices
+    % Derivatives of the parameterization w.r.t. the orthogonal matrices
     dU = zeros(3, 3, 3); dV = zeros(3, 3, 3); dW = zeros(3, 3, 3);
     e = eye(3);
 
@@ -83,8 +84,9 @@ function [f, g, A, B, C, D] = ConstraintsGH_NordbergTFT(obs, x, ~)
 
     A = Ap * J; % Jacobian of f w.r.t. the minimal parameterization
 
-    g = sum(paramT .^ 2) - 1; % constraints on the minimal parameterization
-    C = zeros(1, 19); % jacobian of g w.r.t. the minimal parameterization
+    g = sum(paramT .^ 2) - 1; % Constraints on the minimal parameterization
+    C = zeros(1, 19); % Jacobian of g w.r.t. the minimal parameterization
+
     C(1, 10:19) = 2 * paramT';
     D = zeros(1, 0);
 

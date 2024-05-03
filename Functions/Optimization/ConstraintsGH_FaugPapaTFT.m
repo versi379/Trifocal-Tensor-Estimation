@@ -3,19 +3,19 @@
 
 function [f, g, A, B, C, D] = ConstraintsGH_FaugPapaTFT(obs, x, ~)
 
-    T = reshape(x, 3, 3, 3); % tensor
-    obs = reshape(obs, 6, []); % observations
+    T = reshape(x, 3, 3, 3); % Tensor
+    obs = reshape(obs, 6, []); % Observations
     N = size(obs, 2);
 
-    f = zeros(4 * N, 1); % constraints for tensor and observations (trilinearities)
-    A = zeros(4 * N, 27); % jacobian of f w.r.t. the tensor T
-    B = zeros(4 * N, 6 * N); % jacobian of f w.r.t. the observations
+    f = zeros(4 * N, 1); % Constraints for tensor and observations (trilinearities)
+    A = zeros(4 * N, 27); % Jacobian of f w.r.t. the tensor
+    B = zeros(4 * N, 6 * N); % Jacobian of f w.r.t. the observations
 
     for i = 1:N
-        % points in the three images for correspondance i
+        % Points in the three images for correspondance i
         x1 = obs(1:2, i); x2 = obs(3:4, i); x3 = obs(5:6, i);
 
-        % 4 trilinearities
+        % Trilinearities
         ind2 = 4 * (i - 1);
         S2 = [0 -1; -1 0; x2(2) x2(1)];
         S3 = [0 -1; -1 0; x3(2) x3(1)];
@@ -29,8 +29,8 @@ function [f, g, A, B, C, D] = ConstraintsGH_FaugPapaTFT(obs, x, ~)
         B(ind2 + 1:ind2 + 4, 6 * (i - 1) + (5:6)) = kron([0, 1; 1, 0], S2.' * reshape(T(:, 3, :), 3, 3) * [x1; 1]);
     end
 
-    g = zeros(12, 1); % constraints on the parameters of T
-    C = zeros(12, 27); % jacobian of g w.r.t. the parameters of T
+    g = zeros(12, 1); % Constraints on the parameters of the tensor
+    C = zeros(12, 27); % Jacobian of g w.r.t. the parameters of the tensor
     D = zeros(12, 0);
 
     for i = 1:3
@@ -83,7 +83,7 @@ function [f, g, A, B, C, D] = ConstraintsGH_FaugPapaTFT(obs, x, ~)
 
 end
 
-%%% Computes a minor of a matrix A given the row and column indexes
+% This function computes a minor of a matrix A given the row and column indexes.
 function m = minor(A, i, j)
     [h, w] = size(A);
     m = det(A([1:i - 1, i + 1:h], [1:j - 1, j + 1:w])) * (-1) ^ (i + j);

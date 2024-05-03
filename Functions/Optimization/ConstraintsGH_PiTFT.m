@@ -4,21 +4,23 @@
 function [f, g, A, B, C, D] = ConstraintsGH_PiTFT(x, pi, ~, ~)
 
     N = size(x, 1) / 6;
-    % pi vectors
+
+    % Pi vectors
     pi21 = pi(1:3); pi31 = pi(4:6); pi41 = pi(7:9);
     pi12 = pi(10:12); pi32 = pi(13:15); pi42 = pi(16:18);
     pi13 = pi(19:21); pi23 = pi(22:24); pi43 = pi(25:27);
-    % fundamental matrices
+
+    % Compute FMs
     F12 = pi41 * pi32.' - pi31 * pi42.';
     F13 = pi41 * pi23.' - pi21 * pi43.';
     F23 = pi42 * pi13.' - pi12 * pi43.';
 
-    % constraints for pi param evaluated in (pi)
+    % Constraints for pi parametrization evaluated in pi
     g = [sum(pi41 .^ 2) - 1; sum(pi42 .^ 2) - 1; sum(pi43 .^ 2) - 1; ...
-           sum(pi21 .^ 2) - 1; sum(pi32 .^ 2) - 1; sum(pi13 .^ 2) - 1; ...
-           pi21.' * pi41; pi32.' * pi42; pi13.' * pi43];
+             sum(pi21 .^ 2) - 1; sum(pi32 .^ 2) - 1; sum(pi13 .^ 2) - 1; ...
+             pi21.' * pi41; pi32.' * pi42; pi13.' * pi43];
 
-    % g-jacobian w.r.t. pi evaluated in pi
+    % Jacobian of g w.r.t. pi evaluated in pi
     C = zeros(9, 27);
     C(1, 7:9) = 2 * pi41.';
     C(2, 16:18) = 2 * pi42.';
@@ -30,22 +32,22 @@ function [f, g, A, B, C, D] = ConstraintsGH_PiTFT(x, pi, ~, ~)
     C(8, [13:15 16:18]) = [pi42.' pi32.'];
     C(9, [19:21 25:27]) = [pi43.' pi13.'];
 
-    % epi-trilinear conditions evaluated in (x,pi) and jacobians
+    % Epi-trilinear conditions evaluated in (x,pi) and jacobians
     f = zeros(4 * N, 1);
     A = zeros(4 * N, 27);
     B = zeros(4 * N, 6 * N);
 
     for i = 1:N
-        % points in the three images for correspondance i
+        % Points in the three images for correspondance i
         ind = 6 * (i - 1);
         x1 = x(ind + 1:ind + 2); p1 = [x1; 1];
         x2 = x(ind + 3:ind + 4); p2 = [x2; 1];
         x3 = x(ind + 5:ind + 6); p3 = [x3; 1];
 
-        % 3 epipolar constraints, 1 trilinearity
+        % Epipolar constraints and trilinearities
         ind2 = 4 * (i - 1);
         f(ind2 + 1:ind2 + 4) = [p1.' * F12 * p2; p1.' * F13 * p3; p2.' * F23 * p3; ...
-                              ((pi21.' * p1) * (pi32.' * p2) * (pi13.' * p3) - (pi31.' * p1) * (pi12.' * p2) * (pi23.' * p3))];
+                                    ((pi21.' * p1) * (pi32.' * p2) * (pi13.' * p3) - (pi31.' * p1) * (pi12.' * p2) * (pi23.' * p3))];
 
         % Jacobians for f
         A(ind2 + 1, 4:9) = [-pi42.' * p2 * p1.', pi32.' * p2 * p1.'];
@@ -67,4 +69,5 @@ function [f, g, A, B, C, D] = ConstraintsGH_PiTFT(x, pi, ~, ~)
     end
 
     D = zeros(9, 0);
+
 end
