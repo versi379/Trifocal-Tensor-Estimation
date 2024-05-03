@@ -6,7 +6,7 @@ dataset = 'fountain-P11';
 
 %% Some parameters
 
-path_to_data = strcat('Data/', dataset, '/');
+path_to_data = strcat('Dataset/', dataset, '/cameras');
 
 switch dataset
     case 'fountain-P11'
