@@ -1,7 +1,6 @@
 clear;
 
 %% Add functions to working dir
-
 addpath(genpath(pwd));
 
 %% Generate random data for a triplet of images
@@ -9,10 +8,10 @@ N = 100; % Number of 3D points
 noise = 1; % Sigma for the added Gaussian noise in pixels
 seed = 1; % Seed for random generation
 f = 50; % Focal length in mm
-angle = 0; % Default angle (no collinearity of camera centers)
+angle = 0; % Angle among three camera centers (default: no collinearity)
 [calMatrices, R_t0, matchingPoints, points3D] = GenerateSyntheticScene(N, noise, seed, f, angle);
 
-%% Select method to test
+%% Method to test
 method = { ...
               @LinearTFTPoseEst, ... % 1) TFT - Linear Estimation
               @ResslTFTPoseEst, ... % 2) TFT - Ressl Estimation

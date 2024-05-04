@@ -1,24 +1,22 @@
 clear; close all;
 
 %% Add functions to working dir
+addpath(genpath(pwd));
 
-addpath(genpath('Functions'));
-
-%% Here uncomment the variable to vary to reproduce different experiments
-option = 'noise'; % for varying noise
-% option='focal';  % for varying focal length
-% option='points'; % for varying number of initial points
-% option='angle';  % for making camera centers collinear
+%% Variable to test
+option = 'noise'; % To vary noise
+% option = 'focal';  % To vary focal length
+% option = 'points'; % To vary number of points
+% option = 'angle';  % To vary angle
 
 %% Initial parameters
-N = 12; % number of 3D points
-noise = 1; % sigma for the added Gaussian noise in pixels
-f = 50; % focal length in mm
-angle = 0; % no collinearity of camera centers
-n_sim = 20; % number of simulations of data
+N = 12; % Number of 3D points
+noise = 1; % Sigma for the added Gaussian noise in pixels
+f = 50; % Focal length in mm
+angle = 0; % Angle among three camera centers (default: no collinearity)
+n_sim = 20; % Number of simulations to be performed
 
-%% Interval
-
+%% Option varying intervals
 switch option
     case 'noise'
         interval = 0:0.25:3;
@@ -30,99 +28,109 @@ switch option
         interval = [166:2:174, 175:179, 179.5, 180];
 end
 
-%% Test the methods
-
+%% Method to test
 methods = { ...
-             @LinearTFTPoseEst, ... % 1 - TFT - Linear estimation
-             @ResslTFTPoseEst, ... % 2 - TFT - Ressl
-             @NordbergTFTPoseEst, ... % 3 - TFT - Nordberg
-             @FaugPapaTFTPoseEst, ... % 4 - TFT - Faugeras&Papadopoulo
-             @PiPoseEst, ... % 5 - Pi matrices - Ponce&Hebert
-             @PiColPoseEst, ... % 6 - Pi matrices - Ponce&Hebert for collinear cameras
-             @LinearFMPoseEst, ... % 7 - Fundamental matrices - Linear estimation
-             @OptimalFMPoseEst}; % 8 - Fundamental matrices - Optimized
+               @LinearTFTPoseEst, ... % 1) TFT - Linear Estimation
+               @ResslTFTPoseEst, ... % 2) TFT - Ressl Estimation
+               @NordbergTFTPoseEst, ... % 3) TFT - Nordberg Estimation
+               @FaugPapaTFTPoseEst, ... % 4) TFT - Faugeras-Papadopoulo Estimation
+               @PiPoseEst, ... % 5) TFT - Ponce-Hebert Estimation
+               @PiColPoseEst, ... % 6) TFT - Ponce-Hebert (collinear cameras) Estimation
+               @LinearFMPoseEst, ... % 7) FM - Linear Estimation
+               @OptimalFMPoseEst}; % 8) FM - Optimized Estimation
 
 if strcmp(option, 'angle')
     methods_to_test = 1:8;
 else
-    methods_to_test = [1:5, 7:8];
+    methods_to_test = [1:5, 7:8]; % Method 6 is not tested
 end
 
-% error vectors
-repr_err = zeros(length(interval), length(methods), 2);
-rot_err = zeros(length(interval), length(methods), 2);
-t_err = zeros(length(interval), length(methods), 2);
-iter = zeros(length(interval), length(methods), 2);
-time = zeros(length(interval), length(methods), 2);
+%% Vectors to measure
+repr_err = zeros(length(interval), length(methods), 2); % Reprojection error
+rot_err = zeros(length(interval), length(methods), 2); % Rotation error
+t_err = zeros(length(interval), length(methods), 2); % Translation error
+iter = zeros(length(interval), length(methods), 2); % Number of iterations
+time = zeros(length(interval), length(methods), 2); % Time
 
+%% Iterate to reproduce different "option" values in relative interval
 for i = 1:length(interval)
 
     switch option
         case 'noise'
             noise = interval(i);
-            fprintf('Noise= %fpix\n', noise);
+            fprintf('Noise = %fpix\n', noise);
         case 'focal'
             f = interval(i);
-            fprintf('Focal length= %dmm\n', f)
+            fprintf('Focal length = %dmm\n', f);
         case 'points'
             N = interval(i);
-            fprintf('Number of points used in estimation= %d\n', N)
+            fprintf('Number of points = %d\n', N);
         case 'angle'
             angle = interval(i);
-            fprintf('Angle between three centers= %f\n', angle)
+            fprintf('Angle among camera centers = %f\n', angle);
     end
 
+    % Fixed a certain "option" value,
+    % iterate to reproduce a given number of simulations
     for it = 1:n_sim
-        % Generate random data for a triplet of images
-        [CalM, R_t0, Corresp] = GenerateSyntheticScene(N + 100, noise, it, f, angle);
-        rng(it);
-        Corresp = Corresp(:, randsample(N + 100, N));
 
+        % Generate random data for a triplet of images
+        [calMatrices, R_t0, matchingPoints] = GenerateSyntheticScene(N + 100, noise, it, f, angle);
+        rng(it);
+        matchingPoints = matchingPoints(:, randsample(N + 100, N));
+
+        % Iterate to reproduce different estimation methods implemented
         for m = methods_to_test
 
-            if (m > 6 && N < 8) || N < 7 % if not enough matches
-                repr_err(i, m, :) = inf; rot_err(i, m, :) = inf;
-                t_err(i, m, :) = inf; iter(i, m, :) = inf;
+            % Check minimum number of correspondences
+            if (m > 6 && N < 8) || N < 7
+                repr_err(i, m, :) = inf;
+                rot_err(i, m, :) = inf;
+                t_err(i, m, :) = inf;
+                iter(i, m, :) = inf;
                 time(i, m, :) = inf;
                 continue;
             end
 
-            % pose estimation by method m, measuring time
+            % Perform pose estimation with method m
             t0 = cputime;
-            [R_t_2, R_t_3, Reconst, ~, nit] = methods{m}(Corresp, CalM);
+            [R_t_2, R_t_3, Rec, ~, nit] = methods{m}(matchingPoints, calMatrices);
             t = cputime - t0;
 
-            % reprojection error
+            % Compute reprojection error
             repr_err(i, m, 1) = repr_err(i, m, 1) + ...
-                ReprError({CalM(1:3, :) * eye(3, 4), ...
-                           CalM(4:6, :) * R_t_2, CalM(7:9, :) * R_t_3}, Corresp, Reconst) / n_sim;
+                ReprError({calMatrices(1:3, :) * eye(3, 4), ...
+                           calMatrices(4:6, :) * R_t_2, calMatrices(7:9, :) * R_t_3}, matchingPoints, Rec) / n_sim;
 
-            % angular errors
+            % Compute angular errors (rotation and translation)
             [rot2_err, t2_err] = AngErrors(R_t0{1}, R_t_2);
             [rot3_err, t3_err] = AngErrors(R_t0{2}, R_t_3);
             rot_err(i, m, 1) = rot_err(i, m, 1) + (rot2_err + rot3_err) / (2 * n_sim);
             t_err(i, m, 1) = t_err(i, m, 1) + (t2_err + t3_err) / (2 * n_sim);
 
-            % iterations & time
+            % Compute number of iterations and time
             iter(i, m, 1) = iter(i, m, 1) + nit / n_sim;
             time(i, m, 1) = time(i, m, 1) + t / n_sim;
 
             % Apply Bundle Adjustment
             t0 = cputime;
-            [R_t_ref, ~, nit, repr_errBA] = BundleAdjustment(CalM, ...
-                [eye(3, 4); R_t_2; R_t_3], Corresp, Reconst);
+            [R_t_ref, ~, nit, repr_errBA] = BundleAdjustment(calMatrices, ...
+                [eye(3, 4); R_t_2; R_t_3], matchingPoints, Rec);
             t = cputime - t0;
 
-            % reprojection error
+            % Compute reprojection error
             repr_err(i, m, 2) = repr_err(i, m, 2) + repr_errBA / n_sim;
-            % angular errors
+
+            % Compute angular errors (rotation and translation)
             [rot2_err, t2_err] = AngErrors(R_t0{1}, R_t_ref(4:6, :));
             [rot3_err, t3_err] = AngErrors(R_t0{2}, R_t_ref(7:9, :));
             rot_err(i, m, 2) = rot_err(i, m, 2) + (rot2_err + rot3_err) / (2 * n_sim);
             t_err(i, m, 2) = t_err(i, m, 2) + (t2_err + t3_err) / (2 * n_sim);
-            % iterations & time
+
+            % Compute number of iterations and time
             iter(i, m, 2) = iter(i, m, 2) + nit / n_sim;
             time(i, m, 2) = time(i, m, 2) + t / n_sim;
+
         end
 
     end
@@ -130,71 +138,72 @@ for i = 1:length(interval)
 end
 
 %% Plot results
-
 methods_to_plot = methods_to_test;
+method_names = {'Linear TFT', 'Ressl TFT', 'Nordberg TFT', 'Faugeras-Papadopoulo TFT', 'Ponce-Hebert TFT', ...
+                    'Ponce-Hebert (collinear cameras) TFT', 'Linear FM', 'Optimized FM', 'Bundle Adjustment'};
 
-method_names = {'Linear TFT', 'Ressl TFT', 'Nordberg', 'FaugPapad', 'Ponce&Hebert', ...
-                  'Ponce&Hebert-Col', 'Linear F', 'Optim F', 'Bundle Adj.'};
+%% Initial plots
+figure('Position', [100, 600, 1800, 300], 'Name', 'Initial Results')
 
-figure('Position', [100, 600, 1800, 300], 'Name', 'Results in initial estimation')
-% reprojection error plot
+% Reprojection error plot
 subplot(1, 5, 1);
 plot(interval, repr_err(:, methods_to_plot, 1))
-title('Reprojection error')
+title('Initial Reprojection Error')
 legend(method_names(methods_to_plot), 'Location', 'Best')
 
-% rotation error plot
+% Rotation error plot
 subplot(1, 5, 2);
 plot(interval, rot_err(:, methods_to_plot, 1))
-title('Angular error in rotations')
+title('Initial Rotation Error')
 legend(method_names(methods_to_plot), 'Location', 'Best')
 
-% translation error plot
+% Translation error plot
 subplot(1, 5, 3);
 plot(interval, t_err(:, methods_to_plot, 1))
-title('Angular error in translations')
+title('Initial Translation Error')
 legend(method_names(methods_to_plot), 'Location', 'Best')
 
-% iterations initial estimation plot
+% Number of iterations plot
 subplot(1, 5, 4);
 plot(interval, iter(:, methods_to_plot, 1))
-title('Iterations in initial methods')
+title('Initial Number of Iterations')
 legend(method_names(methods_to_plot), 'Location', 'Best')
 
-% time initial estimation plot
+% Time plot
 subplot(1, 5, 5);
 plot(interval, time(:, methods_to_plot, 1))
-title('Time for initial methods')
+title('Initial Time')
 legend(method_names(methods_to_plot), 'Location', 'Best')
 
-%%% plots for Bundle Adjustment
+%% Bundle Adjustment plots
 figure('Position', [100, 100, 1800, 300], 'Name', 'Results after Bundle Adjustment')
-% reprojection error plot
+
+% Reprojection error plot
 subplot(1, 5, 1);
 plot(interval, repr_err(:, methods_to_plot, 2))
-title('Reprojection error-BA')
+title('BA Reprojection Error')
 legend(method_names(methods_to_plot), 'Location', 'Best')
 
-% rotation error plot
+% Rotation error plot
 subplot(1, 5, 2);
 plot(interval, rot_err(:, methods_to_plot, 2))
-title('Angular error in rotations-BA')
+title('BA Rotation Error')
 legend(method_names(methods_to_plot), 'Location', 'Best')
 
-% translation error plot
+% Translation error plot
 subplot(1, 5, 3);
 plot(interval, t_err(:, methods_to_plot, 2))
-title('Angular error in translations-BA')
+title('BA Translation Error')
 legend(method_names(methods_to_plot), 'Location', 'Best')
 
-% iterations in bundle adjustment plot
+% Number of iterations plot
 subplot(1, 5, 4);
 plot(interval, iter(:, methods_to_plot, 2))
-title('Iterations in bundle adjustment')
+title('BA Number of Iterations')
 legend(method_names(methods_to_plot), 'Location', 'Best')
 
-% time initial estimation plot
+% Time plot
 subplot(1, 5, 5);
 plot(interval, time(:, methods_to_plot, 2))
-title('Time for Bundle adjustment')
+title('BA Time')
 legend(method_names(methods_to_plot), 'Location', 'Best')

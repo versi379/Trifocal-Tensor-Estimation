@@ -1,5 +1,8 @@
 clear; close all;
 
+%% Add functions to working dir
+addpath(genpath(pwd));
+
 %% Dataset
 dataset = 'fountain-P11';
 % dataset = 'Herz-Jesu-P8';
@@ -14,6 +17,7 @@ switch dataset
         triplets_to_test = 1:70;
     case 'Herz-Jesu-P8'
         triplets_to_test = 1:50;
+    case ''
 end
 
 initial_sample_size = 100;
@@ -28,19 +32,18 @@ corresp_by_triplet = corresp_file.Corresp;
 im_names = corresp_file.im_names;
 clear corresp_file;
 
-%% methods to evaluate
-
+%% Method to test
 methods = { ...
-             @LinearTFTPoseEst, ... % 1 - TFT - Linear estimation
-             @ResslTFTPoseEst, ... % 2 - TFT - Ressl
-             @NordbergTFTPoseEst, ... % 3 - TFT - Nordberg
-             @FaugPapaTFTPoseEst, ... % 4 - TFT - Faugeras&Papadopoulo
-             @PiPoseEst, ... % 5 - Pi matrices - Ponce&Hebert
-             @PiColPoseEst, ... % 6 - Pi matrices - Ponce&Hebert for collinear cameras
-             @LinearFMPoseEst, ... % 7 - Fundamental matrices - Linear estimation
-             @OptimalFMPoseEst}; % 8 - Fundamental matrices - Optimized
+             @LinearTFTPoseEst, ... % 1) TFT - Linear Estimation
+             @ResslTFTPoseEst, ... % 2) TFT - Ressl Estimation
+             @NordbergTFTPoseEst, ... % 3) TFT - Nordberg Estimation
+             @FaugPapaTFTPoseEst, ... % 4) TFT - Faugeras-Papadopoulo Estimation
+             @PiPoseEst, ... % 5) TFT - Ponce-Hebert Estimation
+             @PiColPoseEst, ... % 6) TFT - Ponce-Hebert (collinear cameras) Estimation
+             @LinearFMPoseEst, ... % 7) FM - Linear Estimation
+             @OptimalFMPoseEst}; % 8) FM - Optimized Estimation
 
-methods_to_test = [1:5, 7:8]; % no method for collinear cameras
+methods_to_test = [1:5, 7:8]; % Method 6 is not tested
 
 %% error vectors
 repr_err = zeros(length(triplets_to_test), length(methods), 2);
