@@ -45,7 +45,7 @@ else
     methods_to_test = [1:5, 7:8]; % Method 6 is not tested
 end
 
-%% Vectors to measure
+%% Vectors to be measured
 repr_err = zeros(length(interval), length(methods), 2); % Reprojection error
 rot_err = zeros(length(interval), length(methods), 2); % Rotation error
 t_err = zeros(length(interval), length(methods), 2); % Translation error
