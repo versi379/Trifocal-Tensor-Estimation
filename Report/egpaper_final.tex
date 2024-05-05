@@ -1,0 +1,83 @@
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage{cvpr}
+\usepackage{times}
+\usepackage{epsfig}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\usepackage{authblk}
+\usepackage{bm}
+\usepackage{mathtools}
+\usepackage{mdframed}%
+\usepackage[ruled]{algorithm2e}
+\usepackage{enumitem}
+\usepackage{lipsum}%
+\usepackage{url}%
+\usepackage{multicol}
+
+\usepackage[pagebackref=true,breaklinks=true,letterpaper=true,bookmarks=false,colorlinks]{hyperref}
+
+\cvprfinalcopy
+
+\def\httilde{\mbox{\tt\raisebox{-.5ex}{\symbol{126}}}}
+
+\ifcvprfinal\pagestyle{empty}\fi
+
+\DeclareMathAlphabet\mathbfcal{OMS}{cmsy}{b}{n}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+\SetKwInput{kwObjective}{Objective}
+\SetKwInput{kwAlgorithm}{Algorithm}
+
+\numberwithin{equation}{section}
+
+\graphicspath{{../}}
+
+\begin{document}
+
+\title{Comparative Analysis of Two-View and Three-View Pose Estimation Algorithms for Image-Based 3D Reconstruction: Fundamental Matrix vs Trifocal Tensor \\ IACV 2023-2024 Project}
+
+\author[1]{Giovanni Versiglioni}
+\author[2]{Luca Magri}
+\author[2]{Federica Arrigoni}
+\author[2]{Vincenzo Caglioti}
+\affil[1]{\textbf{[Student]} giovanni.versiglioni@mail.polimi.it}
+\affil[2]{\textbf{[Supervisors]} luca.magri@polimi.it, federica.arrigoni@polimi.it, vincenzo.caglioti@polimi.it}
+
+\maketitle
+
+\begin{abstract}
+	Image-based 3D reconstruction plays a pivotal role in various fields, from computer vision to augmented reality. Traditionally, algorithms for such reconstructions have predominantly relied on two-view reconstructions. However, the availability of three-view setups offers a unique opportunity to impose more stringent geometric constraints, potentially enhancing reconstruction accuracy. This research project aims to conduct a critical comparison between existing solvers for two-view and three-view pose estimation. By evaluating their performance in practical applications, this study seeks to ascertain whether it is more advantageous to exploit pairs or triplets of images for accurate scene reconstruction. Through comprehensive experimentation and analysis, this research aims to provide valuable insights into the effectiveness of different approaches, thereby aiding practitioners in selecting the most suitable algorithms for image-based 3D reconstruction tasks.\\
+	
+	\textbf{Keywords} Multiple-View Geometry, Pose Estimation, Fundamental Matrix, Trifocal Tensor
+\end{abstract}
+
+\begin{multicols}{2}
+\tableofcontents
+\end{multicols}
+
+\pagebreak
+
+\input{Sections/Introduction}
+\input{Sections/FundamentalMatrix}
+\input{Sections/TrifocalTensor}
+\input{Sections/PoseEstimation}
+\input{Sections/Experiments}
+\input{Sections/Conclusions}
+
+%\appendix
+%\section{Supplementary Material}
+
+{\small
+\bibliographystyle{ieee}
+\bibliography{egbib}
+}
+
+\pagebreak
+
+\listoffigures
+\listoftables
+
+\end{document}

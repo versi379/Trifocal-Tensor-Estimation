@@ -155,8 +155,10 @@ end
 means_all = zeros(8, 5, 2);
 
 for m = methods_to_test
+    % Initial means
     means_all(m, :, 1) = [mean(repr_err(:, m, 1)), mean(rot_err(:, m, 1)), ...
                               mean(t_err(:, m, 1)), mean(iter(:, m, 1)), mean(time(:, m, 1))];
+    % BA means
     means_all(m, :, 2) = [mean(repr_err(:, m, 2)), mean(rot_err(:, m, 2)), ...
                               mean(t_err(:, m, 2)), mean(iter(:, m, 2)), mean(time(:, m, 2))];
 end

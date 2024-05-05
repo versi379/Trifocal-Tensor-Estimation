@@ -1,0 +1,10 @@
+\section{Conclusions}\label{sec:conclusions}
+In our investigation, we delved into various techniques for estimating the trifocal tensor and determining the pose of three distinct views. Upon rigorous experimentation, it became evident that while the trifocal tensor offers a methodological alternative, its advantages over pose estimation derived from fundamental matrices—based on pairs of views—are not substantial enough to warrant its exclusive preference.\\
+
+Our findings underscore the pragmatic appeal of simplicity and computational efficiency. We advocate for a strategy that emphasizes the utilization of pairwise constraints through fundamental matrices, supplemented by bundle adjustment procedures to refine results. It's worth noting that employing bundle adjustment consistently leads to a significant reduction in errors. Essentially, in this approach, the initial phase relies solely on establishing pairwise constraints to gauge the relative scales of translations, with image triplets serving primarily for this purpose.
+
+\subsection{Future Work}
+
+Nevertheless, an intriguing avenue for future exploration lies in investigating whether employing the trifocal tensor yields improved outcomes in scenarios involving more than three views (\ie, \( n > 3 \)). However, in such multi-view stereo pipelines, the manner in which image pairs and triplets are integrated is likely to wield considerable influence over the overall efficacy.\\
+
+Furthermore, our research has brought to light an additional consideration: the robustness of bundle adjustment optimization. We observed that even when initialized from distant starting points, the optimization process can converge to a satisfactory minimum. This observation prompts further inquiry into the potential extended local convexity of the minimized energy landscape, which we intend to explore in future studies.

@@ -1,0 +1,28 @@
+\section{Pose Estimation}\label{sec:estimation}
+We can derive the epipoles, which are the projections of the first camera center onto the second and third images, from a trifocal tensor \( \mathbfcal{T} \). The epipole \( e_{31} \) is determined as the shared point of intersection among the lines represented by the right null-vectors of \( T1 \), \( T2 \), and \( T3 \). Similarly, the epipole \( e_{21} \) is found as the common point of intersection among the lines represented by the left null-vectors of \( T1 \), \( T2 \), and \( T3 \). Subsequently, we can compute the fundamental matrices
+\begin{equation}
+	\begin{gathered}
+		F_{21} = [e_{21}]_{\times}[T_1e_{31}, T_2e_{31}, T_3e_{31}]\\
+		F_{31} = [e_{31}]_{\times}[T_1^\top e_{21}, T_2^\top e_{21}, T_3^\top e_{21}].
+	\end{gathered}
+\end{equation}
+
+The essential matrices can be derived from the fundamental matrices and the calibration matrices \( K_i \) using the formula \( [t_{ij}]_{\times}R_{ij} = E_{ij} = K_i^\top F_{ij}K_j \). From these essential matrices, the relative orientations \( (R_{21}, t_{21}) \) and \( (R_{31}, t_{31}) \) can be extracted through the singular value decomposition of \( E_{21} \) and \( E_{31} \), with each translation vector's scale remaining unknown. To establish an overall scale, we set \( \Vert t_{21} = 1 \Vert \), while the relative scale \( \lambda \) of \( t_{31} \) can be determined by triangulating the space points \( \{X^n\}_n \) from the first two cameras' projections and minimizing the algebraic error relative to the third image, as shown
+\begin{equation}
+	\argmin_{\lambda \in \mathbb{R}}{\sum_{n = 1}^{N}{\left\Vert x_3^n \times \left( K_3 \left( R_{31}X^n + \lambda \frac{t_{31}}{\Vert t_{31} \Vert} \right) \right) \right\Vert}}.
+\end{equation}
+
+The latter admits a closed form solution. So, either from the trifocal tensor or the fundamental matrices, we possess a method for computing the camera poses.
+
+\subsection{Bundle Adjustment}
+In pose estimation, a frequent final stage involves refining the orientations through Bundle Adjustment. This process aims to minimize the square reprojection error across potential camera orientations and spatial points. For N correspondences and M = 3 cameras
+\begin{equation}
+	\min_{\{ R_j, t_j \}_j, \{ X^i \}_i}{\epsilon^2}, \quad \epsilon^2 = \sum_{i = 1}^{N}{\sum_{j = 1}^{M}{d \left( x_j^i, K_j(R_jX^i + t_j) \right)^2}},
+\end{equation}
+
+where \( x_j^i \) is for the homogeneous coordinates of the observed image point, and the distance \( d \) is the Euclidean distance in homogeneous coordinates
+\begin{equation}
+	d \left( (x, y, z)^\top, (t, u, v)^\top \right)^2 = \left( \frac{x}{z} - \frac{t}{v} \right)^2 + \left( \frac{y}{z} - \frac{u}{v} \right)^2
+\end{equation}
+
+The optimization procedure can be executed using the Levenberg-Marquardt algorithm \cite{14-levenberg}.

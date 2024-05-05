@@ -4,17 +4,17 @@ clear; close all;
 addpath(genpath(pwd));
 
 %% Variable to test
-option = 'noise'; % To vary noise
+% option = 'noise'; % To vary noise
 % option = 'focal';  % To vary focal length
 % option = 'points'; % To vary number of points
 % option = 'angle';  % To vary angle
 
 %% Initial parameters
-N = 12; % Number of 3D points
+N = 10; % Number of 3D points
 noise = 1; % Sigma for the added Gaussian noise in pixels
 f = 50; % Focal length in mm
 angle = 0; % Angle among three camera centers (default: no collinearity)
-n_sim = 20; % Number of simulations to be performed
+n_sim = 30; % Number of simulations to be performed
 
 %% Option varying intervals
 switch option
@@ -143,67 +143,95 @@ method_names = {'Linear TFT', 'Ressl TFT', 'Nordberg TFT', 'Faugeras-Papadopoulo
                     'Ponce-Hebert (collinear cameras) TFT', 'Linear FM', 'Optimized FM', 'Bundle Adjustment'};
 
 %% Initial plots
-figure('Position', [100, 600, 1800, 300], 'Name', 'Initial Results')
+figure('Units', 'inches', ...
+       'Position', [0, 0, 6.875, 8.875], 'Name', 'Initial Results')
+
+tiledlayout(3, 2);
 
 % Reprojection error plot
-subplot(1, 5, 1);
+nexttile
 plot(interval, repr_err(:, methods_to_plot, 1))
+xlabel(option)
+ylabel('error (pixels)')
 title('Initial Reprojection Error')
-legend(method_names(methods_to_plot), 'Location', 'Best')
 
 % Rotation error plot
-subplot(1, 5, 2);
+nexttile
 plot(interval, rot_err(:, methods_to_plot, 1))
+xlabel(option)
+ylabel('error (°)')
 title('Initial Rotation Error')
-legend(method_names(methods_to_plot), 'Location', 'Best')
 
 % Translation error plot
-subplot(1, 5, 3);
+nexttile
 plot(interval, t_err(:, methods_to_plot, 1))
+xlabel(option)
+ylabel('error (°)')
 title('Initial Translation Error')
-legend(method_names(methods_to_plot), 'Location', 'Best')
 
 % Number of iterations plot
-subplot(1, 5, 4);
+nexttile
 plot(interval, iter(:, methods_to_plot, 1))
+xlabel(option)
+ylabel('# iterations')
 title('Initial Number of Iterations')
-legend(method_names(methods_to_plot), 'Location', 'Best')
 
 % Time plot
-subplot(1, 5, 5);
+nexttile
 plot(interval, time(:, methods_to_plot, 1))
+xlabel(option)
+ylabel('time (s)')
 title('Initial Time')
-legend(method_names(methods_to_plot), 'Location', 'Best')
+
+% Legend
+leg = legend(method_names(methods_to_plot), 'Location', 'Best');
+leg.Layout.Tile = 6;
+
+saveas(gcf, strcat('Experiments/Synthetic/', option, '/INIT', option, 'Plots.png'), 'png');
 
 %% Bundle Adjustment plots
-figure('Position', [100, 100, 1800, 300], 'Name', 'Results after Bundle Adjustment')
+figure('Units', 'inches', ...
+       'Position', [0, 0, 6.875, 8.875], 'Name', 'Results after Bundle Adjustment')
+
+tiledlayout(3, 2);
 
 % Reprojection error plot
-subplot(1, 5, 1);
+nexttile
 plot(interval, repr_err(:, methods_to_plot, 2))
+xlabel(option)
+ylabel('error (pixels)')
 title('BA Reprojection Error')
-legend(method_names(methods_to_plot), 'Location', 'Best')
 
 % Rotation error plot
-subplot(1, 5, 2);
+nexttile
 plot(interval, rot_err(:, methods_to_plot, 2))
+xlabel(option)
+ylabel('error (°)')
 title('BA Rotation Error')
-legend(method_names(methods_to_plot), 'Location', 'Best')
 
 % Translation error plot
-subplot(1, 5, 3);
+nexttile
 plot(interval, t_err(:, methods_to_plot, 2))
+xlabel(option)
+ylabel('error (°)')
 title('BA Translation Error')
-legend(method_names(methods_to_plot), 'Location', 'Best')
 
 % Number of iterations plot
-subplot(1, 5, 4);
+nexttile
 plot(interval, iter(:, methods_to_plot, 2))
+xlabel(option)
+ylabel('# iterations')
 title('BA Number of Iterations')
-legend(method_names(methods_to_plot), 'Location', 'Best')
 
 % Time plot
-subplot(1, 5, 5);
+nexttile
 plot(interval, time(:, methods_to_plot, 2))
+xlabel(option)
+ylabel('time (s)')
 title('BA Time')
-legend(method_names(methods_to_plot), 'Location', 'Best')
+
+% Legend
+leg = legend(method_names(methods_to_plot), 'Location', 'Best');
+leg.Layout.Tile = 6;
+
+saveas(gcf, strcat('Experiments/Synthetic/', option, '/BA', option, 'Plots.png'), 'png');

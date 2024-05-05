@@ -1,0 +1,53 @@
+\section{The Fundamental Matrix}\label{sec:fm}
+In this section, we first introduce the definition of the fundamental matrix. We then proceed to describe numerical methods for estimating the fundamental matrix given a set of point correspondences between two images. Initially, we leverage linear equations derived from epipolar constraints to establish a foundational framework. Subsequently, we explore Gauss-Helmert optimization, aiming to enhance precision and robustness in our analysis.
+
+\subsection{Definition}
+The \textbf{Fundamental Matrix (FM)} is defined by the equation
+\begin{equation}
+	x'^\top Fx = 0
+	\label{eq:fmDef}
+\end{equation}
+
+for any pair of matching points \( x \leftrightarrow x' \) in two images. 
+
+\subsection{Linear Computation}
+Given sufficiently many point matches (\ie at least 7), Equation \ref{eq:fmDef} can be used to compute the unknown matrix \( F \). In particular, each point match gives rise to one linear equation in the unknown entries of \( F \). Specifically, the equation corresponding to a pair of points \( (x, y, 1) \) and \( (x', y', 1) \) is
+\begin{equation}
+	x'xf_{11} + x'yf_{12} + x'f_{13} + y'xf_{21} + y'yf_{22} + y'f_{23} + xf_{31} + yf_{32} + f_{33} = 0.
+\end{equation}
+
+From a set of \( n \) point matches, we derive the set of linear equations
+
+\begin{equation}
+	Af = 
+	\begin{bmatrix}
+	x_1'x_1 & x_1'y_1 & x_1' & y_1'x_1 & y_1'y_1 & y_1' & x_1 & y_1 & 1\\
+	\vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots\\
+	x_n'x_n & x_n'y_n & x_n' & y_n'x_n & y_n'y_n & y_n' & x_n & y_n & 1
+	\end{bmatrix}
+	f = 0,
+	\label{eq:LinearFM}
+\end{equation}
+
+where \( f \) is the 9-vector made up of the entries of \( F \) in row-major order.\\
+
+The 8-point algorithm stands as the most straightforward approach for computing the fundamental matrix. It entails constructing and solving a set of linear equations, typically through the method of least squares. The original algorithm is due to \cite{11-eight-point-algo}.
+
+\begin{algorithm}[h]
+		\caption{Normalized Eight Point Algorithm (Linear FM Computation)}
+		\kwObjective{Given \( n \geq 8 \) image point correspondences \( \{ x_i \leftrightarrow x'_i \} \), determine the fundamental matrix \( F \) such that \( {x'}_i^\top Fx_i = 0 \).}
+		\kwAlgorithm{
+		\begin{enumerate}[label=(\roman*),leftmargin=*,rightmargin=1.5em]
+        	\item \textbf{Normalization:} Transform the image coordinates according to \( \hat{x}_i = Tx_i \) and \( \hat{x}'_i = Tx_i' \), where \( T \) and \( T' \) are normalizing transformations consisting of a translation and a scaling.
+        	\item Find the Fundamental Matrix \( \hat{F}' \) corresponding to the matches \( \{ x_i \leftrightarrow x'_i \} \) by
+       		\begin{enumerate}[label=(\alph*),leftmargin=*,rightmargin=1.5em]
+       			\item \textbf{Linear solution:} Determine \( \hat{F} \) from the singular vector corresponding to the smallest singular value of \( \hat{A} \), where \( \hat{A} \) is composed from the matches \( \{ x_i \leftrightarrow x'_i \} \) as defined in Equation \ref{eq:LinearFM}.
+       			\item \textbf{Constraint enforcement:} Replace \( \hat{F} \) by \( \hat{F}' \) such that \( |\hat{F}'| = 0 \) using the SVD.
+       		\end{enumerate}
+        	\item \textbf{Denormalization:} Set \( F = T'^\top \hat{F}'T \). Matrix \( F \) is the Fundamental Matrix corresponding to the original data \( \{ x_i \leftrightarrow x'_i \} \).
+    	\end{enumerate}
+    }
+\end{algorithm}
+
+\subsection{Optimization}
+
