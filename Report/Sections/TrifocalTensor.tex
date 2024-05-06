@@ -54,7 +54,7 @@ Similarly to the fundamental matrix in two-view geometry, the trifocal tensor en
 
 with \( x \), \( x' \), and \( x'' \) being the homogeneous coordinates of corresponding points in three images. However, other trilinear relations can be derived, such as L-L-L, P-L-L, P-L-P, P-P-L, and P-P-P, where P stands for point and L stands for line. These trilinearities are invariant under projective transformations, ensuring robustness across different camera configurations and scenes.\\
 
-Among the nine scalar equations in \ref{eq:tftTrilinearities}, only four are linearly independent. They manifest linearity with respect to the parameters of the trifocal tensor and trilinearity with respect to the image coordinates. When viewed in pairs, the incidence relationships established by the fundamental matrices for the corresponding triplet \( x \), \( x' \), and \( x'' \) consist of a group of three equations that are linear with respect to the parameters of the fundamental matrices and bilinear with respect to the image points
+Among the nine scalar equations in (\ref{eq:tftTrilinearities}), only four are linearly independent. They manifest linearity with respect to the parameters of the trifocal tensor and trilinearity with respect to the image coordinates. When viewed in pairs, the incidence relationships established by the fundamental matrices for the corresponding triplet \( x \), \( x' \), and \( x'' \) consist of a group of three equations that are linear with respect to the parameters of the fundamental matrices and bilinear with respect to the image points
 \begin{equation}
 	x_2^\top F_{21}x_1 = 0 \quad x_3^\top F_{31}x_1 = 0 \quad x_3^\top F_{32}x_2 = 0,
 \end{equation}
@@ -65,7 +65,7 @@ where the involved fundamental matrices are
 \end{equation}
 
 \subsection{Linear Computation}
-The trifocal tensor can be derived from a linear system described by the trilinear relationships outlined in \ref{sec:trilinearities}. Each triplet yields nine equations that are linear with respect to the tensor's parameters, yet only four of these equations are linearly independent. To solve this linear system, a minimum of seven correspondences is required, with the additional constraint \( || \mathbfcal{T} || = 1 \). If more triplets are available, a solution minimizing the algebraic error can be obtained via Singular Value Decomposition (SVD). However, the resulting trifocal tensor may not always be valid.\\
+The trifocal tensor can be derived from a linear system described by the trilinear relationships outlined in (\ref{sec:trilinearities}). Each triplet yields nine equations that are linear with respect to the tensor's parameters, yet only four of these equations are linearly independent. To solve this linear system, a minimum of seven correspondences is required, with the additional constraint \( || \mathbfcal{T} || = 1 \). If more triplets are available, a solution minimizing the algebraic error can be obtained via Singular Value Decomposition (SVD). However, the resulting trifocal tensor may not always be valid.\\
 
 To fix this, a valid trifocal tensor can be computed through an algebraic minimization algorithm that parallels the linear process employed to find the fundamental matrix.
 
@@ -76,7 +76,7 @@ To fix this, a valid trifocal tensor can be computed through an algebraic minimi
 		\begin{enumerate}[label=(\roman*),leftmargin=*,rightmargin=1.5em]
         	\item From the set of point and line correspondences compute the set of equations of the form \( At = 0 \), where \( t \) is the 27-vector made up of the entries of the trifocal tensor.
         	\item Solve these equations using the least-squares solution to constrained systems, in order to find an initial estimate of the trifocal tensor \( \mathbfcal{T}_i^{jk} \).
-        	\item Find the two epipoles \( e' \) and \( e'' \) from \( \mathbfcal{T}_i^{jk} \) as the common perpendicular to the left () null-vectors of the three slices \( \bm{T}_i \).
+        	\item Find the two epipoles \( e' \) and \( e'' \) from \( \mathbfcal{T}_i^{jk} \) as the common perpendicular to the left null-vectors of the three slices \( \bm{T}_i \).
         	\item Construct the \( 27 \times 18 \) matrix \( E \) such that \( t = Ea \), where a is the vector representing entries of \( a_i^j \) and \( b_i^k \), and where \( E \) espresses the linear relationship \( \mathbfcal{T}_i^{jk} = a_i^j{e''}^k - {e'}^jb_i^k \).
         	\item Minimize \( || AEa || \) subject to \( || Ea || = 1 \), . Compute the error vector \( \epsilon = AEa \).
         	\item \textbf{Iteration:} The mapping \( (e', e'') \mapsto \epsilon \) is a mapping from \( \mathbb{R}^6 \) to \( \mathbb{R}^27 \). Iterate on the last two steps with varying \( e' \) and \( e'' \) using the Levenberg-Marquardt algorithm to find the optimal \( e' \), \( e'' \) pair. Hence find the optimal \( t = Ea \) containing the entries \( \mathbfcal{T}_i^{jk} \).

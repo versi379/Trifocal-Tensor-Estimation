@@ -2,57 +2,81 @@
 We put into action and assessed the outcomes of pose estimation for both synthetic and real data employing both the fundamental matrix and the trifocal tensor. \footnote{The MATLAB code to reproduce these experiments is available at the GitHub repository: \href{https://github.com/versi379/Two-View-Three-View-Pose-Estimation.git}{https://github.com/versi379/Two-View-Three-View-Pose-Estimation.git}.}
 
 \subsection{Synthetic Data}
-We conducted trials on synthetic data to assess pose estimation using both the fundamental matrix and the trifocal tensor across various configurations. The standard experimental setup consists of a collection of spatial points situated within a 400mm-sided cube centered at the world's origin (figura). Points are projected onto three views, and Gaussian noise with a standard deviation of 1 pixel is applied to the image points, unless specified otherwise. A set of 12 points is utilized for computations across various models. The image dimensions are 1800×1200 pixels, representing a sensor size of 36mm×24mm, with a fixed focal length of 50mm. All cameras are aligned to focus on the origin. Results are averaged over 20 simulations of data.\\
+We conducted trials on synthetic data to assess pose estimation using both the fundamental matrix and the trifocal tensor across various configurations. The standard experimental setup consists of a collection of spatial points situated within a 400mm-sided cube centered at the world's origin (Figure X). Points are projected onto three views, and Gaussian noise with a standard deviation of 1 pixel is applied to the image points, unless specified otherwise. A set of 10 points is utilized for computations across various models. The image dimensions are \( 1800 \times 1200 \) pixels, representing a sensor size of \( 36mm \times 24mm \), with a fixed focal length of 50mm. All cameras are aligned to focus on the origin. Results are averaged over 30 simulations of data.\\
 
-
+// IMMAGINE (3 CAMERE E PUNTI NELLO SPAZIO)
 
 \begin{figure}[p]
 	\centering
 	\includegraphics[width=1\textwidth]{Experiments/Synthetic/noise/INITnoisePlots.png}
-	\caption{Reprojection error (top-left), rotation error (top-right), translation error (mid-left), number of iterations (mid-right), computational time (bottom-left); when varying the Gaussian noise added to the image points.}
+	\caption{Initial reprojection error (top-left), rotation error (top-right), translation error (mid-left), number of iterations (mid-right), computational time (bottom-left); when varying the Gaussian noise added to the image points.}
+	\label{fig:initNoisePlot}
 \end{figure}
 
 \begin{figure}[p]
 	\centering
 	\includegraphics[width=1\textwidth]{Experiments/Synthetic/noise/BAnoisePlots.png}
-	\caption{Reprojection error (top-left), rotation error (top-right), translation error (mid-left), number of iterations (mid-right), computational time (bottom-left) after Bundle Adjustment; when varying the Gaussian noise added to the image points.}
+	\caption{Reprojection error (top-left), rotation error (top-right), translation error (mid-left), number of iterations (mid-right), computational time (bottom-left) after Bundle Adjustment; when varying the focal length.}
+	\label{fig:BANoisePlot}
 \end{figure}
+
+\pagebreak
+
+Metrics before and after Bundle Adjustment, against Gaussian noise level added to the data points, is shown respectively in Figure (\ref{fig:initNoisePlot}) and Figure (\ref{fig:BANoisePlot}).
 
 \begin{figure}[p]
 	\centering
 	\includegraphics[width=1\textwidth]{Experiments/Synthetic/focal/INITfocalPlots.png}
-	\caption{Reprojection error (top-left), rotation error (top-right), translation error (mid-left), number of iterations (mid-right), computational time (bottom-left); when varying the Gaussian noise added to the image points.}
+	\caption{Initial reprojection error (top-left), rotation error (top-right), translation error (mid-left), number of iterations (mid-right), computational time (bottom-left); when varying the Gaussian noise added to the image points.}
+	\label{fig:initFocalPlot}
 \end{figure}
 
 \begin{figure}[p]
 	\centering
 	\includegraphics[width=1\textwidth]{Experiments/Synthetic/focal/BAfocalPlots.png}
-	\caption{Reprojection error (top-left), rotation error (top-right), translation error (mid-left), number of iterations (mid-right), computational time (bottom-left) after Bundle Adjustment; when varying the Gaussian noise added to the image points.}
+	\caption{Reprojection error (top-left), rotation error (top-right), translation error (mid-left), number of iterations (mid-right), computational time (bottom-left) after Bundle Adjustment; when varying the focal length.}
+	\label{fig:BAFocalPlot}
 \end{figure}
+
+\pagebreak
+
+Metrics before and after Bundle Adjustment, against Gaussian noise level added to the data points, is shown respectively in Figure (\ref{fig:initFocalPlot}) and Figure (\ref{fig:BAFocalPlot}).
 
 \begin{figure}[p]
 	\centering
 	\includegraphics[width=1\textwidth]{Experiments/Synthetic/points/INITpointsPlots.png}
-	\caption{Reprojection error (top-left), rotation error (top-right), translation error (mid-left), number of iterations (mid-right), computational time (bottom-left); when varying the Gaussian noise added to the image points.}
+	\caption{Initial reprojection error (top-left), rotation error (top-right), translation error (mid-left), number of iterations (mid-right), computational time (bottom-left); when varying the number of image points.}
+	\label{fig:initPointsPlot}
 \end{figure}
 
 \begin{figure}[p]
 	\centering
 	\includegraphics[width=1\textwidth]{Experiments/Synthetic/points/BApointsPlots.png}
-	\caption{Reprojection error (top-left), rotation error (top-right), translation error (mid-left), number of iterations (mid-right), computational time (bottom-left) after Bundle Adjustment; when varying the Gaussian noise added to the image points.}
+	\caption{Reprojection error (top-left), rotation error (top-right), translation error (mid-left), number of iterations (mid-right), computational time (bottom-left) after Bundle Adjustment; when varying the number of image points.}
+	\label{fig:BAPointsPlot}
 \end{figure}
+
+\pagebreak
+
+Metrics before and after Bundle Adjustment, against Gaussian noise level added to the data points, is shown respectively in Figure (\ref{fig:initPointsPlot}) and Figure (\ref{fig:BAPointsPlot}).
 
 \begin{figure}[p]
 	\centering
 	\includegraphics[width=1\textwidth]{Experiments/Synthetic/angle/INITanglePlots.png}
-	\caption{Reprojection error (top-left), rotation error (top-right), translation error (mid-left), number of iterations (mid-right), computational time (bottom-left); when varying the Gaussian noise added to the image points.}
+	\caption{Initial reprojection error (top-left), rotation error (top-right), translation error (mid-left), number of iterations (mid-right), computational time (bottom-left); when varying the angle among the three camera centers.}
+	\label{fig:initAnglePlot}
 \end{figure}
 
 \begin{figure}[p]
 	\centering
 	\includegraphics[width=1\textwidth]{Experiments/Synthetic/angle/BAanglePlots.png}
-	\caption{Reprojection error (top-left), rotation error (top-right), translation error (mid-left), number of iterations (mid-right), computational time (bottom-left) after Bundle Adjustment; when varying the Gaussian noise added to the image points.}
+	\caption{Reprojection error (top-left), rotation error (top-right), translation error (mid-left), number of iterations (mid-right), computational time (bottom-left) after Bundle Adjustment; when varying the angle among the three camera centers.}
+	\label{fig:BAAnglePlot}
 \end{figure}
+
+\pagebreak
+
+Metrics before and after Bundle Adjustment, against Gaussian noise level added to the data points, is shown respectively in Figure (\ref{fig:initAnglePlot}) and Figure (\ref{fig:BAAnglePlot}).
 
 \pagebreak
 
@@ -63,7 +87,7 @@ In assessing the efficacy of these methods within real-world contexts, we opted 
 
 \begin{table}[htbp]
   \centering
-  \caption{FountainInit}
+  \caption{Fountain Initial Data}
   \label{tab:fountainInit}
   \begin{tabular}{|*{6}{c}|}
     \hline
@@ -86,7 +110,7 @@ In assessing the efficacy of these methods within real-world contexts, we opted 
 
 \begin{table}[htbp]
   \centering
-  \caption{FountainBA}
+  \caption{Fountain after Bundle Adjustment}
   \label{tab:fountainBA}
   \begin{tabular}{|*{6}{c}|}
     \hline
@@ -109,7 +133,7 @@ In assessing the efficacy of these methods within real-world contexts, we opted 
 
 \begin{table}[htbp]
   \centering
-  \caption{HerzJesuInit}
+  \caption{HerzJesu Initial Data}
   \label{tab:HerzJesuInit}
   \begin{tabular}{|*{6}{c}|}
     \hline
@@ -132,7 +156,7 @@ In assessing the efficacy of these methods within real-world contexts, we opted 
 
 \begin{table}[htbp]
   \centering
-  \caption{HerzJesuBA}
+  \caption{HerzJesu after Bundle Adjustment}
   \label{tab:HerzJesuBA}
   \begin{tabular}{|*{6}{c}|}
     \hline

@@ -4,7 +4,7 @@ clear; close all;
 addpath(genpath(pwd));
 
 %% Dataset
-dataset = 'fountain-P11';
+% dataset = 'fountain-P11';
 % dataset = 'Herz-Jesu-P8';
 % dataset = 'entry-P10'; % .mat file to be added
 
@@ -67,15 +67,15 @@ for it = 1:length(triplets_to_test)
     [K1, R1_true, t1_true, im_size] = ExtractCalibOrient(path_to_data, im_names{im1});
     [K2, R2_true, t2_true] = ExtractCalibOrient(path_to_data, im_names{im2});
     [K3, R3_true, t3_true] = ExtractCalibOrient(path_to_data, im_names{im3});
-    CalM = [K1; K2; K3];
+    calMatrices = [K1; K2; K3];
     R_t0 = {[R2_true * R1_true.', t2_true - R2_true * R1_true.' * t1_true], ...
                 [R3_true * R1_true.', t3_true - R3_true * R1_true.' * t1_true]};
 
     % Remove noisy correspondences (reprojection error > 1 pixel)
-    Reconst0 = Triangulate3DPoints({K1 * eye(3, 4), K2 * R_t0{1}, K3 * R_t0{2}}, Corresp);
-    Reconst0 = bsxfun(@rdivide, Reconst0(1:3, :), Reconst0(4, :));
-    Corresp_new = Project3DPoints(Reconst0, {K1 * eye(3, 4), K2 * R_t0{1}, K3 * R_t0{2}});
-    residuals = Corresp_new - Corresp; % reprojection error
+    Rec0 = Triangulate3DPoints({K1 * eye(3, 4), K2 * R_t0{1}, K3 * R_t0{2}}, Corresp);
+    Rec0 = bsxfun(@rdivide, Rec0(1:3, :), Rec0(4, :));
+    Corresp_new = Project3DPoints(Rec0, {K1 * eye(3, 4), K2 * R_t0{1}, K3 * R_t0{2}});
+    residuals = Corresp_new - Corresp; % Reprojection error
     Corresp_inliers = Corresp(:, sum(abs(residuals) > repr_err_th, 1) == 0);
     N = size(Corresp_inliers, 2);
     REr = ReprError({K1 * eye(3, 4), K2 * R_t0{1}, K3 * R_t0{2}}, Corresp_inliers);
@@ -106,12 +106,12 @@ for it = 1:length(triplets_to_test)
 
         % Perform pose estimation with method m
         t0 = cputime;
-        [R_t_2, R_t_3, ~, ~, nit] = methods{m}(Corresp_init, CalM);
+        [R_t_2, R_t_3, ~, ~, nit] = methods{m}(Corresp_init, calMatrices);
         t = cputime - t0;
 
         % Compute reprojection error
-        repr_err(it, m, 1) = ReprError({CalM(1:3, :) * eye(3, 4), ...
-                                            CalM(4:6, :) * R_t_2, CalM(7:9, :) * R_t_3}, Corresp_inliers);
+        repr_err(it, m, 1) = ReprError({calMatrices(1:3, :) * eye(3, 4), ...
+                                            calMatrices(4:6, :) * R_t_2, calMatrices(7:9, :) * R_t_3}, Corresp_inliers);
 
         % Compute angular errors (rotation and translation)
         [rot2_err, t2_err] = AngErrors(R_t0{1}, R_t_2);
@@ -125,14 +125,14 @@ for it = 1:length(triplets_to_test)
         % Apply Bundle Adjustment
         fprintf('(ref)... ');
         t0 = cputime;
-        [R_t_ref, ~, nit, repr_errBA] = BundleAdjustment(CalM, ...
+        [R_t_ref, ~, nit, repr_errBA] = BundleAdjustment(calMatrices, ...
             [eye(3, 4); R_t_2; R_t_3], Corresp_ref);
         t = cputime - t0;
 
         % Compute reprojection error
-        repr_err(it, m, 2) = ReprError({CalM(1:3, :) * R_t_ref(1:3, :), ...
-                                            CalM(4:6, :) * R_t_ref(4:6, :), ...
-                                            CalM(7:9, :) * R_t_ref(7:9, :)}, Corresp_inliers);
+        repr_err(it, m, 2) = ReprError({calMatrices(1:3, :) * R_t_ref(1:3, :), ...
+                                            calMatrices(4:6, :) * R_t_ref(4:6, :), ...
+                                            calMatrices(7:9, :) * R_t_ref(7:9, :)}, Corresp_inliers);
 
         % Compute angular errors (rotation and translation)
         [rot2_err, t2_err] = AngErrors(R_t0{1}, R_t_ref(4:6, :));

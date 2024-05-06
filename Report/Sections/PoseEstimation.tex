@@ -1,9 +1,9 @@
 \section{Pose Estimation}\label{sec:estimation}
-We can derive the epipoles, which are the projections of the first camera center onto the second and third images, from a trifocal tensor \( \mathbfcal{T} \). The epipole \( e_{31} \) is determined as the shared point of intersection among the lines represented by the right null-vectors of \( T1 \), \( T2 \), and \( T3 \). Similarly, the epipole \( e_{21} \) is found as the common point of intersection among the lines represented by the left null-vectors of \( T1 \), \( T2 \), and \( T3 \). Subsequently, we can compute the fundamental matrices
+We can derive the epipoles, which are the projections of the first camera center onto the second and third images, from a trifocal tensor \( \mathbfcal{T} \). The epipole \( e_{31} \) is determined as the shared point of intersection among the lines represented by the right null-vectors of \( \bm{T}_1 \), \( \bm{T}_2 \), and \( \bm{T}_3 \). Similarly, the epipole \( e_{21} \) is found as the common point of intersection among the lines represented by the left null-vectors of \( \bm{T}_1 \), \( \bm{T}_2 \), and \( \bm{T}_3 \). Subsequently, we can compute the fundamental matrices
 \begin{equation}
 	\begin{gathered}
-		F_{21} = [e_{21}]_{\times}[T_1e_{31}, T_2e_{31}, T_3e_{31}]\\
-		F_{31} = [e_{31}]_{\times}[T_1^\top e_{21}, T_2^\top e_{21}, T_3^\top e_{21}].
+		F_{21} = [e_{21}]_{\times}[\bm{T}_1e_{31}, \bm{T}_2e_{31}, \bm{T}_3e_{31}]\\
+		F_{31} = [e_{31}]_{\times}[\bm{T}_1^\top e_{21}, \bm{T}_2^\top e_{21}, \bm{T}_3^\top e_{21}].
 	\end{gathered}
 \end{equation}
 

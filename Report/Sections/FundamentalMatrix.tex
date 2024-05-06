@@ -11,7 +11,7 @@ The \textbf{Fundamental Matrix (FM)} is defined by the equation
 for any pair of matching points \( x \leftrightarrow x' \) in two images. 
 
 \subsection{Linear Computation}
-Given sufficiently many point matches (\ie at least 7), Equation \ref{eq:fmDef} can be used to compute the unknown matrix \( F \). In particular, each point match gives rise to one linear equation in the unknown entries of \( F \). Specifically, the equation corresponding to a pair of points \( (x, y, 1) \) and \( (x', y', 1) \) is
+Given sufficiently many point matches (\ie, at least 7), Equation (\ref{eq:fmDef}) can be used to compute the unknown matrix \( F \). In particular, each point match gives rise to one linear equation in the unknown entries of \( F \). Specifically, the equation corresponding to a pair of points \( (x, y, 1) \) and \( (x', y', 1) \) is
 \begin{equation}
 	x'xf_{11} + x'yf_{12} + x'f_{13} + y'xf_{21} + y'yf_{22} + y'f_{23} + xf_{31} + yf_{32} + f_{33} = 0.
 \end{equation}
@@ -41,10 +41,10 @@ The 8-point algorithm stands as the most straightforward approach for computing 
         	\item \textbf{Normalization:} Transform the image coordinates according to \( \hat{x}_i = Tx_i \) and \( \hat{x}'_i = Tx_i' \), where \( T \) and \( T' \) are normalizing transformations consisting of a translation and a scaling.
         	\item Find the Fundamental Matrix \( \hat{F}' \) corresponding to the matches \( \{ x_i \leftrightarrow x'_i \} \) by
        		\begin{enumerate}[label=(\alph*),leftmargin=*,rightmargin=1.5em]
-       			\item \textbf{Linear solution:} Determine \( \hat{F} \) from the singular vector corresponding to the smallest singular value of \( \hat{A} \), where \( \hat{A} \) is composed from the matches \( \{ x_i \leftrightarrow x'_i \} \) as defined in Equation \ref{eq:LinearFM}.
+       			\item \textbf{Linear solution:} Determine \( \hat{F} \) from the singular vector corresponding to the smallest singular value of \( \hat{A} \), where \( \hat{A} \) is composed from the matches \( \{ x_i \leftrightarrow x'_i \} \) as defined in Equation (\ref{eq:LinearFM}).
        			\item \textbf{Constraint enforcement:} Replace \( \hat{F} \) by \( \hat{F}' \) such that \( |\hat{F}'| = 0 \) using the SVD.
        		\end{enumerate}
-        	\item \textbf{Denormalization:} Set \( F = T'^\top \hat{F}'T \). Matrix \( F \) is the Fundamental Matrix corresponding to the original data \( \{ x_i \leftrightarrow x'_i \} \).
+        	\item \textbf{Denormalization:} Set \( F = T'^\top \hat{F}'T \). Matrix \( F \) is the fundamental matrix corresponding to the original data \( \{ x_i \leftrightarrow x'_i \} \).
     	\end{enumerate}
     }
 \end{algorithm}
